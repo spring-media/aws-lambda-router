@@ -59,5 +59,5 @@ See here: http://vansande.org/2015/03/20/npm-link/
 
 ## Release History
 
-* 0.0.2 make it work now 
+* 0.1.0 make it work now 
 * 0.0.1 initial release
