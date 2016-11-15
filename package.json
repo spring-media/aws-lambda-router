@@ -1,6 +1,6 @@
 {
   "name": "aws-lambda-router",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "AWS lambda router",
   "main": "httpRouteHandler.js",
   "scripts": {
