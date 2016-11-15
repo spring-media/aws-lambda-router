@@ -2,7 +2,7 @@
   "name": "aws-lambda-router",
   "version": "0.0.1",
   "description": "AWS lambda router",
-  "main": "index.js",
+  "main": "httpRouteHandler.js",
   "scripts": {
     "test": "gulp test"
   },
