@@ -2,7 +2,7 @@
   "name": "aws-lambda-router",
   "version": "0.1.1",
   "description": "AWS lambda router",
-  "main": "httpRouteHandler.js",
+  "main": "index.js",
   "scripts": {
     "test": "gulp test"
   },
@@ -15,6 +15,7 @@
     "lambda",
     "apigateway",
     "any",
+    "sns",
     "router",
     "routing"
   ],
@@ -25,10 +26,11 @@
   },
   "homepage": "https://github.com/WeltN24/aws-lambda-router#readme",
   "devDependencies": {
-    "del": "2.2.2",
-    "gulp": "3.9.1",
-    "gulp-install": "0.6.0",
-    "gulp-jasmine": "2.4.2",
-    "gulp-zip": "3.2.0"
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-install": "^0.6.0",
+    "gulp-jasmine": "^2.4.2",
+    "gulp-zip": "^3.2.0",
+    "proxyquire": "^1.7.10"
   }
 }
