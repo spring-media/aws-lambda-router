@@ -48,9 +48,13 @@ exports.handler = router.handler(
             }
         ],
         debug: true,
+        // custom mapping of thrown errors to http response code error: 
+        // the action can throw an object like
+        // "throw {reason: 'NotFound', message: 'object id not found'}"
+        // the http response then contains the configured value as response code and the message as the body
         errorMapping: {
             'NotFound': 404,
-            'RequestError': 500
+            'ServerError': 500
         }
     },
     // for handling calls initiated from AWS-SNS:
