@@ -67,11 +67,6 @@ exports.handler = router.handler(
 });
 ```
 
-## Publish a new version to npmjs.org
-
-
-
-
 ## local developement
 
 The best is to work with ```npm link```
@@ -81,5 +76,6 @@ See here: http://vansande.org/2015/03/20/npm-link/
 
 ## Release History
 
+* 0.2.0 Attention: breaking changes for configuration; add SNS event process
 * 0.1.0 make it work now 
 * 0.0.1 initial release
