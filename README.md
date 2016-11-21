@@ -5,7 +5,7 @@
 
 ## aws-lambda-router
 
-A small library providing routing for AWS ApiGateway ```any``` method
+A small library providing routing for AWS ApiGateway Proxy Integrations and SNS...
 
 ## Install
 
@@ -16,39 +16,56 @@ $ npm install aws-lambda-router
 ## Usage
 
 ```js
-const httpRouteHandler = require('aws-lambda-router');
+const router = require('aws-lambda-router');
 
-exports.handler = httpRouteHandler.handler({
-    cors: true,
-    routes: [
-        {
-            path: '/graphql',
-            method: 'POST',
-            action: request=>doAnything(request.body)
-        },
-        {
-            path: '/article/{id}',
-            method: 'GET',
-            action: request=>getArticleInfo(request.body)
-        },
-        {
-            path: '/:sourcepath',
-            method: 'DELETE',
-            action: request=>deleteSourcepath(request.paths.sourcepath)
+exports.handler = router.handler(
+    // the router-config contains configs for every type of 'processor'
+{
+    // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
+    proxyIntegration: {
+        // activate CORS on all http-methods:
+        cors: true,
+        routes: [
+            {
+                // the request-path-pattern to match:
+                path: '/graphql',
+                // http method to match
+                method: 'POST',
+                // provide a function to be called with the propriate data
+                action: request=>doAnything(request.body)
+            },
+            {
+                // request-path-pattern with a path variable:
+                path: '/article/:id',
+                method: 'GET',
+                // we can use the path param 'id' in the action call:
+                action: request=>getSomething(request.paths.id)
+            },
+            {
+                path: '/:id',
+                method: 'DELETE',
+                action: request=>deleteSomething(request.paths.id)
+            }
+        ],
+        debug: true,
+        errorMapping: {
+            'NotFound': 404,
+            'RequestError': 500
         }
-    ],
-    debug: true,
-    errorMapping: {
-        'NotFound': 404,
-        'RequestError': 500
+    },
+    // for handling calls initiated from AWS-SNS:
+    sns: {
+        routes: [
+            {
+                // a regex to match the content of the SNS-Subject:
+                subject: /.*/,
+                // Attention: the message is JSON-stringified 
+                action: sns => service.doSomething(JSON.parse(sns.Message))
+            }
+        ]
     }
 });
 ```
-
-## Publish a new version to npmjs.org
-
-
-
 
 ## local developement
 
@@ -59,5 +76,6 @@ See here: http://vansande.org/2015/03/20/npm-link/
 
 ## Release History
 
+* 0.2.0 Attention: breaking changes for configuration; add SNS event process
 * 0.1.0 make it work now 
 * 0.0.1 initial release
