@@ -36,7 +36,7 @@ describe('processor.configuration', () => {
             lib1: {},
             lib2: {}
         })({}, {}, cb);
-        expect(cb).toHaveBeenCalledWith(jasmine.stringMatching(/^No processor found/));
+        expect(cb).toHaveBeenCalledWith(jasmine.stringMatching(/^No event processor found/));
     });
 
 });

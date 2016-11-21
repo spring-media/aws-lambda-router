@@ -183,8 +183,8 @@ describe('proxyIntegration.routeHandler', () => {
             paths: {}
         });
     });
-    it('should return error for no route found', (done) => {
-        proxyIntegration({routes: []}, {httpMethod: 'GET'}).then(result => {
+    it('should return error for no process found', (done) => {
+        proxyIntegration({routes: [{}]}, {httpMethod: 'GET', path: '/'}).then(result => {
             expect(result).toEqual({
                 statusCode: 404,
                 body: jasmine.stringMatching(/Could not find/),
@@ -194,7 +194,7 @@ describe('proxyIntegration.routeHandler', () => {
         });
     });
     it('should return null if it is not an http request', () => {
-        const result = proxyIntegration({routes: []}, {});
+        const result = proxyIntegration({routes: [{}]}, {});
         expect(result).toBe(null);
     });
     forEach([
