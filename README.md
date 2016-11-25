@@ -23,7 +23,7 @@ exports.handler = router.handler(
 {
     // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
     proxyIntegration: {
-        // activate CORS on all http-methods:
+        // activate CORS on all http-methods (OPTIONS requests are handled automagically):
         cors: true,
         routes: [
             {
