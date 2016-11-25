@@ -84,7 +84,7 @@ See here: http://vansande.org/2015/03/20/npm-link/
 
 ## Release History
 
-* 0.2.1 proxyIntegration: CORS in Preflight, status code 400 for invalid body
+* 0.2.1 proxyIntegration: CORS in Preflight, status code 400 for invalid body, set more CORS headers as default
 * 0.2.0 Attention: breaking changes for configuration; add SNS event process
 * 0.1.0 make it work now 
 * 0.0.1 initial release
