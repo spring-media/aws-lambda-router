@@ -14,6 +14,11 @@ function forEach(arrayOfArrays) {
 }
 
 const proxyIntegration = require('../lib/proxyIntegration');
+const expectedCorsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,HEAD'",
+    "Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+};
 
 describe('proxyIntegration.routeHandler.selection', () => {
     it('should select longer match', () => {
@@ -106,9 +111,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
         }, {httpMethod: 'OPTIONS', path: '/'}).then(result => {
             expect(result).toEqual({
                 statusCode: 200,
-                headers: {
-                    "Access-Control-Allow-Origin": "*"
-                },
+                headers: expectedCorsHeaders,
                 body: ''
             });
             done();
@@ -121,10 +124,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
         }, {httpMethod: 'GET', path: '/'}).then(result => {
             expect(result).toEqual({
                 statusCode: 200,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*"
-                },
+                headers: Object.assign({"Content-Type": "application/json"}, expectedCorsHeaders),
                 body: '"/"'
             });
             done();
@@ -307,7 +307,7 @@ describe('proxyIntegration.routeHandler', () => {
             expect(result).toEqual({
                 statusCode: 501,
                 body: 'bla',
-                headers: {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+                headers: Object.assign({"Content-Type": "application/json"}, expectedCorsHeaders)
             });
             done();
         });
