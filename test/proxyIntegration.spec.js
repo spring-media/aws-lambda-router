@@ -99,6 +99,21 @@ describe('proxyIntegration.routeHandler.selection', () => {
             paths: {param: '/boerse/Resources/Images/css/arrows_change-2.0.1.png?rfid=2013011501'}
         });
     });
+    it('should add cors headers to OPTIONS request', (done) => {
+        proxyIntegration({
+            routes: [{}],
+            cors: true
+        }, {httpMethod: 'OPTIONS', path: '/'}).then(result => {
+            expect(result).toEqual({
+                statusCode: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": "*"
+                },
+                body: ''
+            });
+            done();
+        });
+    });
     it('should add cors headers to GET request', (done) => {
         proxyIntegration({
             routes: [{path: '/', method: 'GET', action: () => '/'}],
@@ -181,6 +196,16 @@ describe('proxyIntegration.routeHandler', () => {
             requestContext: jasmine.anything(),
             path: "/123/456",
             paths: {}
+        });
+    });
+    it('should return 400 for an invalid body', (done) => {
+        proxyIntegration({routes: [{}]}, {httpMethod: 'GET', path: '/', body: '{keinJson'}).then(result => {
+            expect(result).toEqual({
+                statusCode: 400,
+                body: jasmine.stringMatching(/JSON/),
+                headers: jasmine.anything()
+            });
+            done();
         });
     });
     it('should return error for no process found', (done) => {
