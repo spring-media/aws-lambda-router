@@ -328,7 +328,30 @@ describe('proxyIntegration.routeHandler', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
             expect(result).toEqual({
                 statusCode: 500,
-                body: 'Generic error: ' + JSON.stringify(incorrectError)
+                body: 'Generic error: ' + JSON.stringify(incorrectError),
+                headers: expectedCorsHeaders
+            });
+            done();
+        });
+    });
+    it('should pass through error statuscode', (done) => {
+        const statusCodeError = {status: 666, message: {reason: 'oops'}};
+        const routeConfig = {
+            routes: [
+                {
+                    method: 'GET',
+                    path: '/',
+                    action: () => {
+                        throw statusCodeError
+                    }
+                }
+            ]
+        };
+        proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
+            expect(result).toEqual({
+                statusCode: 666,
+                body: {reason: 'oops'},
+                headers: expectedCorsHeaders
             });
             done();
         });
