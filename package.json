@@ -1,6 +1,6 @@
 {
   "name": "aws-lambda-router",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "AWS lambda router",
   "main": "index.js",
   "scripts": {
