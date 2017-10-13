@@ -306,7 +306,7 @@ describe('proxyIntegration.routeHandler', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
             expect(result).toEqual({
                 statusCode: 501,
-                body: 'bla',
+                body: '"bla"',
                 headers: Object.assign({"Content-Type": "application/json"}, expectedCorsHeaders)
             });
             done();
@@ -350,7 +350,7 @@ describe('proxyIntegration.routeHandler', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
             expect(result).toEqual({
                 statusCode: 666,
-                body: {reason: 'oops'},
+                body: '{"reason":"oops"}',
                 headers: expectedCorsHeaders
             });
             done();
@@ -384,7 +384,7 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
             expect(result).toEqual({
                 statusCode: 599,
-                body: 'doof',
+                body: '"doof"',
                 headers: {"Content-Type": "application/json"}
             });
             done();
