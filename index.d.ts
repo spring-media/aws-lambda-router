@@ -1,9 +1,7 @@
 // Type definitions for aws-lambda-router
 // Project: github.com/WeltN24/aws-lambda-router
 
-declare namespace awsLambdaRouter {
-    function handler(routeConfig: RouteConfig): any;
-}
+export function handler(routeConfig: RouteConfig): any;
 
 interface ProxyIntegrationRoute {
     path: string;

@@ -3,7 +3,7 @@
   "version": "0.2.3",
   "description": "AWS lambda router",
   "main": "index.js",
-  "types": "types/index.d.ts",
+  "types": "index.d.ts",
   "scripts": {
     "test": "gulp test"
   },
