@@ -3,13 +3,13 @@
 
 export function handler(routeConfig: RouteConfig): any;
 
-interface ProxyIntegrationRoute {
+export interface ProxyIntegrationRoute {
     path: string;
     method: string;
     action?: (request: any) => any;
 }
 
-interface ProxyIntegrationConfig {
+export interface ProxyIntegrationConfig {
     cors: boolean;
     routes: ProxyIntegrationRoute[];
     debug?: boolean;
@@ -17,12 +17,12 @@ interface ProxyIntegrationConfig {
     defaultHeaders?: string;
 }
 
-interface SnsRoute {
+export interface SnsRoute {
     subject: any;
     action?: (sns: any) => any;
 }
 
-interface SnsConfig {
+export interface SnsConfig {
     routes: SnsRoute[];
     debug?: boolean;
 }
