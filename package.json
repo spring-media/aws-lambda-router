@@ -1,8 +1,9 @@
 {
   "name": "aws-lambda-router",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "AWS lambda router",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "gulp test"
   },
