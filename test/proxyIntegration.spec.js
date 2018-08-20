@@ -359,6 +359,28 @@ describe('proxyIntegration.routeHandler', () => {
 });
 
 describe('proxyIntegration.routeHandler.returnvalues', () => {
+    it('should return async result with custom response object', (done) => {
+
+        const customBody = {
+            statusCode: 201,
+            body: JSON.stringify({foo: 'bar'})
+        };
+
+        const routeConfig = {
+            routes: [
+                {method: 'GET', path: '/', action: () => Promise.resolve(customBody)}
+            ]
+        };
+        proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(res => {
+            expect(res).toEqual({
+                statusCode: 201,
+                headers: jasmine.anything(),
+                body: JSON.stringify({foo: 'bar'})
+            });
+            done();
+        });
+    });
+
     it('should return async result', (done) => {
         const routeConfig = {
             routes: [
