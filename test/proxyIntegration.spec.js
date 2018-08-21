@@ -374,7 +374,9 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(res => {
             expect(res).toEqual({
                 statusCode: 201,
-                headers: jasmine.anything(),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({foo: 'bar'})
             });
             done();
