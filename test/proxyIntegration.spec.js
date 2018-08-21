@@ -363,6 +363,9 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
 
         const customBody = {
             statusCode: 201,
+            headers: {
+                'x-test-header': 'x-value'
+            },
             body: JSON.stringify({foo: 'bar'})
         };
 
@@ -374,7 +377,10 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(res => {
             expect(res).toEqual({
                 statusCode: 201,
-                headers: jasmine.anything(),
+                headers: {
+                    'x-test-header': 'x-value',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({foo: 'bar'})
             });
             done();
