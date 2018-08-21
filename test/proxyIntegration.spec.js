@@ -363,6 +363,9 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
 
         const customBody = {
             statusCode: 201,
+            headers: {
+                'x-test-header': 'x-value'
+            },
             body: JSON.stringify({foo: 'bar'})
         };
 
@@ -375,6 +378,7 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
             expect(res).toEqual({
                 statusCode: 201,
                 headers: {
+                    'x-test-header': 'x-value',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({foo: 'bar'})
