@@ -49,10 +49,31 @@ exports.handler = router.handler(
                 path: '/:id',
                 method: 'DELETE',
                 action: request=>deleteSomething(request.paths.id)
+            },
+            {
+                path: '/custom-response-object',
+                action: 'GET',
+                action: request => {
+                    return {
+                        // Allow for custom status codes depending on execution.
+                        statusCode: 400,
+                        // Headers will merge with CORs headers when enabled.
+                        // Will merge with Content-Type: application/json
+                        headers: {
+                            'x-fake-header': 'x-value'
+                        },
+                        // When returning a custom response object, a key of body is required
+                        // The value of body needs to be JSON stringified, this matches
+                        // the expected response for an AWS Lambda.
+                        body: JSON.stringify({
+                            foo: 'bar'
+                        })
+                    }
+                }
             }
         ],
         debug: true,
-        // custom mapping of thrown errors to http response code error: 
+        // custom mapping of thrown errors to http response code error:
         // the action can throw an object like
         // "throw {reason: 'NotFound', message: 'object id not found'}"
         // the http response then contains the configured value as response code and the message as the body
@@ -67,7 +88,7 @@ exports.handler = router.handler(
             {
                 // a regex to match the content of the SNS-Subject:
                 subject: /.*/,
-                // Attention: the message is JSON-stringified 
+                // Attention: the message is JSON-stringified
                 action: sns => service.doSomething(JSON.parse(sns.Message))
             }
         ]
@@ -87,5 +108,5 @@ See here: http://vansande.org/2015/03/20/npm-link/
 * 0.2.2 proxyIntegration: set correct header values now for CORS
 * 0.2.1 proxyIntegration: CORS in Preflight, status code 400 for invalid body, set more CORS headers as default
 * 0.2.0 Attention: breaking changes for configuration; add SNS event process
-* 0.1.0 make it work now 
+* 0.1.0 make it work now
 * 0.0.1 initial release
