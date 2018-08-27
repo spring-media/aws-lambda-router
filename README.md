@@ -49,27 +49,6 @@ exports.handler = router.handler(
                 path: '/:id',
                 method: 'DELETE',
                 action: request=>deleteSomething(request.paths.id)
-            },
-            {
-                path: '/custom-response-object',
-                action: 'GET',
-                action: request => {
-                    return {
-                        // Allow for custom status codes depending on execution.
-                        statusCode: 400,
-                        // Headers will merge with CORs headers when enabled.
-                        // Will merge with Content-Type: application/json
-                        headers: {
-                            'x-fake-header': 'x-value'
-                        },
-                        // When returning a custom response object, a key of body is required
-                        // The value of body needs to be JSON stringified, this matches
-                        // the expected response for an AWS Lambda.
-                        body: JSON.stringify({
-                            foo: 'bar'
-                        })
-                    }
-                }
             }
         ],
         debug: true,
@@ -96,6 +75,30 @@ exports.handler = router.handler(
 });
 ```
 
+### Custom response
+
+Per default a status code 200 will be returned. This behavior can be override.
+
+By providing body in the returned object you can modify statuscode and response headers.
+
+```js
+return {
+        // Allow for custom status codes depending on execution.
+        statusCode: 218,
+        // Headers will merge with CORs headers when enabled.
+        // Will merge with Content-Type: application/json
+        headers: {
+            'x-new-header': 'another-value'
+        },
+       // When returning a custom response object, a key of body is required
+        // The value of body needs to be JSON stringified, this matches
+        // the expected response for an AWS Lambda.
+        body: JSON.stringify({
+            foo:'bar'
+        })
+    };
+```
+
 ## local developement
 
 The best is to work with ```npm link```
@@ -105,6 +108,7 @@ See here: http://vansande.org/2015/03/20/npm-link/
 
 ## Release History
 
+* 0.3.0 proxyIntegration: allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
 * 0.2.2 proxyIntegration: set correct header values now for CORS
 * 0.2.1 proxyIntegration: CORS in Preflight, status code 400 for invalid body, set more CORS headers as default
 * 0.2.0 Attention: breaking changes for configuration; add SNS event process
