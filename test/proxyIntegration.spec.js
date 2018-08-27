@@ -16,7 +16,7 @@ function forEach(arrayOfArrays) {
 const proxyIntegration = require('../lib/proxyIntegration');
 const expectedCorsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,HEAD",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,HEAD,PATCH",
     "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
 };
 
