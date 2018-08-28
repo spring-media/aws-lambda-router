@@ -42,7 +42,7 @@ describe('processor.configuration', () => {
 });
 
 describe('processor.results', () => {
-    it('SYNC should call callback synchronous with result', () => {
+    it('SYNC should call callback synchronous with result', (done) => {
         const router = proxyquire('../index', {
             './lib/lib1': () => 'syncresult'
         });
