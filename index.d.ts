@@ -1,5 +1,5 @@
 // Type definitions for aws-lambda-router
-// Project: github.com/WeltN24/aws-lambda-router
+// Project: github.com/spring-media/aws-lambda-router
 
 export function handler(routeConfig: RouteConfig): any;
 
@@ -28,6 +28,6 @@ export interface SnsConfig {
 }
 
 export interface RouteConfig {
-    proxyIntegration: ProxyIntegrationConfig;
-    sns: SnsConfig;
+    proxyIntegration?: ProxyIntegrationConfig;
+    sns?: SnsConfig;
 }
