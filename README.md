@@ -1,7 +1,7 @@
 
 [![Build Status](https://travis-ci.org/spring-media/aws-lambda-router.svg?branch=master)](https://travis-ci.org/spring-media/aws-lambda-router)
 [![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router)
-[![dependencies](https://david-dm.org/WeltN24/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
+[![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
 
 ## aws-lambda-router
 
