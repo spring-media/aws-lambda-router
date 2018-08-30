@@ -1,5 +1,5 @@
 // Type definitions for aws-lambda-router
-// Project: github.com/spring-media/aws-lambda-router
+// Project: github.com/spring-mediaof 'RouteConfig/aws-lambda-router
 
 export function handler(routeConfig: RouteConfig): any;
 
