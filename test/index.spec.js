@@ -8,6 +8,7 @@ describe('processor.configuration', () => {
         './lib/lib2': () => Promise.resolve(2)
     });
 
+
     it('should throw error if processor does not exist', () => {
         expect(() => router.handler({
             lib1: {},

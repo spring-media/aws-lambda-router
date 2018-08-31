@@ -269,6 +269,7 @@ describe('proxyIntegration.routeHandler', () => {
         });
     });
 
+
     it('should return default headers', (done) => {
         const routeConfig = {
             defaultHeaders: {'a': '1', 'b': '2'},
@@ -289,6 +290,28 @@ describe('proxyIntegration.routeHandler', () => {
             done();
         });
     });
+
+
+    it('should return error headers', (done) => {
+        const routeConfig = {
+            routes: [
+                {
+                    method: 'GET',
+                    path: '/',
+                    action: () => (Promise.resolve())
+                }
+            ]
+        };
+        proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
+            expect(result).toEqual({
+                statusCode: 200,
+                headers: {"Content-Type": "application/json"},
+                body: "{}"
+            });
+            done();
+        });
+    });
+
     it('should return error including CORS header', (done) => {
         const routeConfig = {
             cors: true,

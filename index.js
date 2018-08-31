@@ -2,7 +2,12 @@
 
 function handler(routeConfig) {
     const eventProcessorMapping = extractEventProcessorMapping(routeConfig);
+
     return (event, context, callback) => {
+        if (routeConfig.debug) {
+            console.log("Lambda invoked with request:", event)
+        }
+
         for (const eventProcessorName of eventProcessorMapping.keys()) {
 
             try {
@@ -22,6 +27,10 @@ function handler(routeConfig) {
                             console.log(error.stack);
                             callback(error.toString());
                         });
+                } else {
+                    if (routeConfig.debug) {
+                        console.log("Event processor couldn't handle request.")
+                    }
                 }
             } catch (error) {
                 if (error.stack) {
