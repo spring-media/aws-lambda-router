@@ -108,7 +108,8 @@ See here: http://vansande.org/2015/03/20/npm-link/
 
 ## Release History
 
-* 0.3.0 proxyIntegration: allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
+* 0.3.1 proxyIntegration: avoid error if response object is not set; add some debug logging
+* 0.3.0 proxyIntegration: add PATCH method; allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
 * 0.2.2 proxyIntegration: set correct header values now for CORS
 * 0.2.1 proxyIntegration: CORS in Preflight, status code 400 for invalid body, set more CORS headers as default
 * 0.2.0 Attention: breaking changes for configuration; add SNS event process
