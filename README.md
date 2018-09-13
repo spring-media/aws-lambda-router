@@ -26,7 +26,7 @@ exports.handler = router.handler(
         // activate CORS on all http-methods (OPTIONS requests are handled automagically);
         // if set to true, these default headers will be sent on every response:
         // "Access-Control-Allow-Origin" = "'*'"
-        // "Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,HEAD'"
+        // "Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,HEAD,PATCH'"
         // "Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         cors: true,
         routes: [
@@ -36,19 +36,19 @@ exports.handler = router.handler(
                 // http method to match
                 method: 'POST',
                 // provide a function to be called with the propriate data
-                action: request=>doAnything(request.body)
+                action: (request: any, context: any) => doAnything(request.body)
             },
             {
                 // request-path-pattern with a path variable:
                 path: '/article/:id',
                 method: 'GET',
                 // we can use the path param 'id' in the action call:
-                action: request=>getSomething(request.paths.id)
+                action: (request: any, context: any) => getSomething(request.paths.id)
             },
             {
                 path: '/:id',
                 method: 'DELETE',
-                action: request=>deleteSomething(request.paths.id)
+                action: (request: any, context: any) => deleteSomething(request.paths.id)
             }
         ],
         debug: true,
@@ -68,7 +68,7 @@ exports.handler = router.handler(
                 // a regex to match the content of the SNS-Subject:
                 subject: /.*/,
                 // Attention: the message is JSON-stringified
-                action: sns => service.doSomething(JSON.parse(sns.Message))
+                action: (sns: any, context: any) => service.doSomething(JSON.parse(sns.Message))
             }
         ]
     }
@@ -101,13 +101,14 @@ return {
 
 ## local developement
 
-The best is to work with ```npm link```
+The best is to work with ```yarn link```
 
-See here: http://vansande.org/2015/03/20/npm-link/
+See here: https://yarnpkg.com/en/docs/cli/link
 
 
 ## Release History
 
+* 0.4.0 now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
 * 0.3.1 proxyIntegration: avoid error if response object is not set; add some debug logging
 * 0.3.0 proxyIntegration: add PATCH method; allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
 * 0.2.2 proxyIntegration: set correct header values now for CORS
