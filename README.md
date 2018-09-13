@@ -36,19 +36,19 @@ exports.handler = router.handler(
                 // http method to match
                 method: 'POST',
                 // provide a function to be called with the propriate data
-                action: (request: any, context: any) => doAnything(request.body)
+                action: (request, context) => doAnything(request.body)
             },
             {
                 // request-path-pattern with a path variable:
                 path: '/article/:id',
                 method: 'GET',
                 // we can use the path param 'id' in the action call:
-                action: (request: any, context: any) => getSomething(request.paths.id)
+                action: (request, context) => getSomething(request.paths.id)
             },
             {
                 path: '/:id',
                 method: 'DELETE',
-                action: (request: any, context: any) => deleteSomething(request.paths.id)
+                action: (request, context) => deleteSomething(request.paths.id)
             }
         ],
         debug: true,
@@ -68,7 +68,7 @@ exports.handler = router.handler(
                 // a regex to match the content of the SNS-Subject:
                 subject: /.*/,
                 // Attention: the message is JSON-stringified
-                action: (sns: any, context: any) => service.doSomething(JSON.parse(sns.Message))
+                action: (sns, context) => service.doSomething(JSON.parse(sns.Message))
             }
         ]
     }
