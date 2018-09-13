@@ -2,7 +2,6 @@ const gulp = require('gulp');
 const del = require('del');
 const install = require('gulp-install');
 const jasmine = require('gulp-jasmine');
-const reporters = require('jasmine-reporters');
 
 gulp.task('test', () =>
     gulp.src('test/*.spec.js')
