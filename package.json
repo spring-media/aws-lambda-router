@@ -1,6 +1,6 @@
 {
   "name": "aws-lambda-router",
-  "version": "0.3.1",
+  "version": "0.4.1",
   "description": "AWS lambda router",
   "main": "index.js",
   "types": "index.d.ts",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WeltN24/aws-lambda-router.git"
+    "url": "git+https://github.com/spring-media/aws-lambda-router.git"
   },
   "keywords": [
     "aws",
@@ -20,18 +20,18 @@
     "router",
     "routing"
   ],
-  "author": "Christian Gohlke <christian.gohlke@weltn24.de> (https://www.welt.de)",
+  "author": "Christian Gohlke <christian.gohlke@spring-media.de> (https://www.welt.de)",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/WeltN24/aws-lambda-router/issues"
+    "url": "https://github.com/spring-media/aws-lambda-router/issues"
   },
-  "homepage": "https://github.com/WeltN24/aws-lambda-router#readme",
+  "homepage": "https://github.com/spring-media/aws-lambda-router#readme",
   "devDependencies": {
-    "del": "^2.2.2",
-    "gulp": "^3.9.1",
-    "gulp-install": "^0.6.0",
-    "gulp-jasmine": "^2.4.2",
-    "gulp-zip": "^3.2.0",
-    "proxyquire": "^1.7.10"
+    "del": "2.2.2",
+    "gulp": "4.0",
+    "gulp-install": "1.1.0",
+    "gulp-jasmine": "4.0.0",
+    "gulp-zip": "4.2.0",
+    "proxyquire": "2.1.0"
   }
 }

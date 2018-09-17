@@ -8,6 +8,7 @@ describe('processor.configuration', () => {
         './lib/lib2': () => Promise.resolve(2)
     });
 
+
     it('should throw error if processor does not exist', () => {
         expect(() => router.handler({
             lib1: {},
@@ -42,7 +43,7 @@ describe('processor.configuration', () => {
 });
 
 describe('processor.results', () => {
-    it('SYNC should call callback synchronous with result', () => {
+    it('SYNC should call callback synchronous with result', (done) => {
         const router = proxyquire('../index', {
             './lib/lib1': () => 'syncresult'
         });

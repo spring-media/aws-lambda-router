@@ -1,7 +1,7 @@
 
-[![Build Status](https://travis-ci.org/WeltN24/aws-lambda-router.svg?branch=master)](https://travis-ci.org/WeltN24/aws-lambda-router)
+[![Build Status](https://travis-ci.org/spring-media/aws-lambda-router.svg?branch=master)](https://travis-ci.org/spring-media/aws-lambda-router)
 [![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router)
-[![dependencies](https://david-dm.org/WeltN24/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
+[![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
 
 ## aws-lambda-router
 
@@ -26,7 +26,7 @@ exports.handler = router.handler(
         // activate CORS on all http-methods (OPTIONS requests are handled automagically);
         // if set to true, these default headers will be sent on every response:
         // "Access-Control-Allow-Origin" = "'*'"
-        // "Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,HEAD'"
+        // "Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,HEAD,PATCH'"
         // "Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         cors: true,
         routes: [
@@ -36,40 +36,19 @@ exports.handler = router.handler(
                 // http method to match
                 method: 'POST',
                 // provide a function to be called with the propriate data
-                action: request=>doAnything(request.body)
+                action: (request, context) => doAnything(request.body)
             },
             {
                 // request-path-pattern with a path variable:
                 path: '/article/:id',
                 method: 'GET',
                 // we can use the path param 'id' in the action call:
-                action: request=>getSomething(request.paths.id)
+                action: (request, context) => getSomething(request.paths.id)
             },
             {
                 path: '/:id',
                 method: 'DELETE',
-                action: request=>deleteSomething(request.paths.id)
-            },
-            {
-                path: '/custom-response-object',
-                action: 'GET',
-                action: request => {
-                    return {
-                        // Allow for custom status codes depending on execution.
-                        statusCode: 400,
-                        // Headers will merge with CORs headers when enabled.
-                        // Will merge with Content-Type: application/json
-                        headers: {
-                            'x-fake-header': 'x-value'
-                        },
-                        // When returning a custom response object, a key of body is required
-                        // The value of body needs to be JSON stringified, this matches
-                        // the expected response for an AWS Lambda.
-                        body: JSON.stringify({
-                            foo: 'bar'
-                        })
-                    }
-                }
+                action: (request, context) => deleteSomething(request.paths.id)
             }
         ],
         debug: true,
@@ -89,22 +68,49 @@ exports.handler = router.handler(
                 // a regex to match the content of the SNS-Subject:
                 subject: /.*/,
                 // Attention: the message is JSON-stringified
-                action: sns => service.doSomething(JSON.parse(sns.Message))
+                action: (sns, context) => service.doSomething(JSON.parse(sns.Message))
             }
         ]
     }
 });
 ```
 
+### Custom response
+
+Per default a status code 200 will be returned. This behavior can be override.
+
+By providing body in the returned object you can modify statuscode and response headers.
+
+```js
+return {
+        // Allow for custom status codes depending on execution.
+        statusCode: 218,
+        // Headers will merge with CORs headers when enabled.
+        // Will merge with Content-Type: application/json
+        headers: {
+            'x-new-header': 'another-value'
+        },
+       // When returning a custom response object, a key of body is required
+        // The value of body needs to be JSON stringified, this matches
+        // the expected response for an AWS Lambda.
+        body: JSON.stringify({
+            foo:'bar'
+        })
+    };
+```
+
 ## local developement
 
-The best is to work with ```npm link```
+The best is to work with ```yarn link```
 
-See here: http://vansande.org/2015/03/20/npm-link/
+See here: https://yarnpkg.com/en/docs/cli/link
 
 
 ## Release History
 
+* 0.4.0 now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
+* 0.3.1 proxyIntegration: avoid error if response object is not set; add some debug logging
+* 0.3.0 proxyIntegration: add PATCH method; allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
 * 0.2.2 proxyIntegration: set correct header values now for CORS
 * 0.2.1 proxyIntegration: CORS in Preflight, status code 400 for invalid body, set more CORS headers as default
 * 0.2.0 Attention: breaking changes for configuration; add SNS event process

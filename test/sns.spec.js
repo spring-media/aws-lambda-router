@@ -4,6 +4,18 @@ describe('sns.processor', () => {
 
     const sns = require('../lib/sns');
 
+    it('context should be pass through', () => {
+        const actionSpy = jasmine.createSpy('action');
+
+        const context = {bla: "blup"};
+        const snsCfg = {routes: [{subject: /.*/, action: actionSpy}]};
+        const event = {Records: [{Sns: {Subject: 'S', Message: 'M'}}]};
+
+        sns(snsCfg, event, context);
+
+        expect(actionSpy).toHaveBeenCalledWith(event.Records[0].Sns, context);
+    });
+
     it('should ignore event if it is no SNS event', () => {
         const snsCfg = {routes: [{subject: /.*/, action: () => 1}]};
         expect(sns(snsCfg, {})).toBe(null);

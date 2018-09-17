@@ -16,12 +16,12 @@ function forEach(arrayOfArrays) {
 const proxyIntegration = require('../lib/proxyIntegration');
 const expectedCorsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,HEAD",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,HEAD,PATCH",
     "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
 };
 
 describe('proxyIntegration.routeHandler.selection', () => {
-    it('should select longer match', () => {
+    it('should select longer match without context (for backward compatibility)', () => {
         const actionSpy = jasmine.createSpy('action');
         proxyIntegration({
             routes: [
@@ -31,7 +31,20 @@ describe('proxyIntegration.routeHandler.selection', () => {
             ]
         }, {httpMethod: 'GET', path: '/123'}, () => {
         });
-        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/123', paths: {}});
+        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/123', paths: {}}, jasmine.anything());
+    });
+
+    it('should select longer match', () => {
+        const actionSpy = jasmine.createSpy('action');
+        proxyIntegration({
+            routes: [
+                {path: '/', method: 'GET', action: () => '/'},
+                {path: '/123', method: 'POST', action: () => '123'},
+                {path: '/123', method: 'GET', action: actionSpy}
+            ]
+        }, {httpMethod: 'GET', path: '/123'}, {}, () => {
+        });
+        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/123', paths: {}}, {});
     });
     it('should select parameter match', () => {
         const actionSpy = jasmine.createSpy('action');
@@ -41,54 +54,58 @@ describe('proxyIntegration.routeHandler.selection', () => {
                 {path: '/123', method: 'GET', action: () => '123'},
                 {path: '/:param', method: 'GET', action: actionSpy}
             ]
-        }, {httpMethod: 'GET', path: '/456'}, () => {
+        }, {httpMethod: 'GET', path: '/456'}, {}, () => {
         });
-        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/456', paths: {param: '456'}});
+        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/456', paths: {param: '456'}}, {});
     });
     it('should select static match', () => {
         const actionSpy = jasmine.createSpy('action');
+        const context = {};
         proxyIntegration({
             routes: [
                 {path: '/', method: 'GET', action: () => '/'},
                 {path: '/123', method: 'GET', action: actionSpy},
                 {path: '/:param', method: 'GET', action: () => 'param'}
             ]
-        }, {httpMethod: 'GET', path: '/123'}, () => {
+        }, {httpMethod: 'GET', path: '/123'}, context, () => {
         });
-        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/123', paths: {}});
+        expect(actionSpy).toHaveBeenCalledWith({httpMethod: 'GET', path: '/123', paths: {}}, context);
     });
     it('should match urlencoded path', () => {
         const actionSpy = jasmine.createSpy('action');
+        const context = {};
         proxyIntegration({
             routes: [
                 {path: '/', method: 'GET', action: () => '/'},
                 {path: '/123', method: 'GET', action: () => '123'},
                 {path: '/:param', method: 'GET', action: actionSpy}
             ]
-        }, {httpMethod: 'GET', path: '/%2Fwirtschaft%2Farticle85883...tml'}, () => {
+        }, {httpMethod: 'GET', path: '/%2Fwirtschaft%2Farticle85883...tml'}, context, () => {
         });
         expect(actionSpy).toHaveBeenCalledWith({
             httpMethod: 'GET',
             path: '/%2Fwirtschaft%2Farticle85883...tml',
             paths: {param: '/wirtschaft/article85883...tml'}
-        });
+        }, context);
     });
     it('should select match containing hyphen', () => {
         const actionSpy = jasmine.createSpy('action');
+        const context = {};
         proxyIntegration({
             routes: [
                 {path: '/:param', method: 'GET', action: actionSpy}
             ]
-        }, {httpMethod: 'GET', path: '/%2Fdeutschland-bewegt-sich%2F'}, () => {
+        }, {httpMethod: 'GET', path: '/%2Fdeutschland-bewegt-sich%2F'}, context, () => {
         });
         expect(actionSpy).toHaveBeenCalledWith({
             httpMethod: 'GET',
             path: '/%2Fdeutschland-bewegt-sich%2F',
             paths: {param: '/deutschland-bewegt-sich/'}
-        });
+        }, context);
     });
     it('should select match containing question marks and dots', () => {
         const actionSpy = jasmine.createSpy('action');
+        const context = {};
         proxyIntegration({
             routes: [
                 {path: '/:param', method: 'GET', action: actionSpy}
@@ -96,13 +113,13 @@ describe('proxyIntegration.routeHandler.selection', () => {
         }, {
             httpMethod: 'GET',
             path: '/%2Fboerse%2FResources%2FImages%2Fcss%2Farrows_change-2.0.1.png?rfid=2013011501'
-        }, () => {
+        }, context, () => {
         });
         expect(actionSpy).toHaveBeenCalledWith({
             httpMethod: 'GET',
             path: '/%2Fboerse%2FResources%2FImages%2Fcss%2Farrows_change-2.0.1.png?rfid=2013011501',
             paths: {param: '/boerse/Resources/Images/css/arrows_change-2.0.1.png?rfid=2013011501'}
-        });
+        }, context);
     });
     it('should add cors headers to OPTIONS request', (done) => {
         proxyIntegration({
@@ -133,8 +150,35 @@ describe('proxyIntegration.routeHandler.selection', () => {
 });
 
 describe('proxyIntegration.routeHandler', () => {
+    it('call with context', () => {
+        const actionSpy = jasmine.createSpy('action');
+        const event = {
+            httpMethod: 'GET', path: "/shortcut-itemsdev",
+            headers: {Host: "api.ep.welt.de"},
+            requestContext: {apiId: 'blabla'}
+        };
+        const context = {
+            awsRequestId: "ab-dc",
+            functionName: "name"
+        };
+
+        proxyIntegration({
+            routes: [{
+                method: 'GET',
+                path: '/',
+                action: actionSpy
+            }]
+        }, event, context, () => {
+        });
+
+        expect(actionSpy).toHaveBeenCalledWith({
+            httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: "/", paths: {}
+        }, context);
+    });
+
     it('should remove basepath from root path if coming over custom domain name', () => {
         const actionSpy = jasmine.createSpy('action');
+        const context = {};
         const event = {
             httpMethod: 'GET', path: "/shortcut-itemsdev",
             headers: {Host: "api.ep.welt.de"},
@@ -146,14 +190,15 @@ describe('proxyIntegration.routeHandler', () => {
                 path: '/',
                 action: actionSpy
             }]
-        }, event, () => {
+        }, event, context, () => {
         });
         expect(actionSpy).toHaveBeenCalledWith({
             httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: "/", paths: {}
-        });
+        }, context);
     });
     it('should remove basepath from multi-slash-path if coming over custom domain name', () => {
         const actionSpy = jasmine.createSpy('action');
+        const context = {};
         const event = {
             httpMethod: 'GET', path: "/shortcut-itemsdev/123/456",
             headers: {Host: "api.ep.welt.de"},
@@ -165,7 +210,7 @@ describe('proxyIntegration.routeHandler', () => {
                 path: '/123/456',
                 action: actionSpy
             }]
-        }, event, () => {
+        }, event, context, () => {
         });
         expect(actionSpy).toHaveBeenCalledWith({
             httpMethod: 'GET',
@@ -173,10 +218,11 @@ describe('proxyIntegration.routeHandler', () => {
             requestContext: jasmine.anything(),
             path: "/123/456",
             paths: {}
-        });
+        }, context);
     });
     it('should not change path if not coming over custom domain name', () => {
         const actionSpy = jasmine.createSpy('action');
+        const context = {};
         const event = {
             httpMethod: 'GET', path: "/123/456",
             headers: {Host: "blabla.execute-api.eu-central-1.amazonaws.com"},
@@ -188,7 +234,7 @@ describe('proxyIntegration.routeHandler', () => {
                 path: '/123/456',
                 action: actionSpy
             }]
-        }, event, () => {
+        }, event, context, () => {
         });
         expect(actionSpy).toHaveBeenCalledWith({
             httpMethod: 'GET',
@@ -196,7 +242,7 @@ describe('proxyIntegration.routeHandler', () => {
             requestContext: jasmine.anything(),
             path: "/123/456",
             paths: {}
-        });
+        }, context);
     });
     it('should return 400 for an invalid body', (done) => {
         proxyIntegration({routes: [{}]}, {httpMethod: 'GET', path: '/', body: '{keinJson'}).then(result => {
@@ -264,10 +310,11 @@ describe('proxyIntegration.routeHandler', () => {
             ]
         };
         proxyIntegration(routeConfig, {path: path, httpMethod: 'GET'}).then(()=>{
-            expect(spiedAction).toHaveBeenCalledWith({path: path, httpMethod: 'GET', paths: expectedPathValues});
+            expect(spiedAction).toHaveBeenCalledWith({path: path, httpMethod: 'GET', paths: expectedPathValues}, undefined);
             done();
         });
     });
+
 
     it('should return default headers', (done) => {
         const routeConfig = {
@@ -289,6 +336,28 @@ describe('proxyIntegration.routeHandler', () => {
             done();
         });
     });
+
+
+    it('should return error headers', (done) => {
+        const routeConfig = {
+            routes: [
+                {
+                    method: 'GET',
+                    path: '/',
+                    action: () => (Promise.resolve())
+                }
+            ]
+        };
+        proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
+            expect(result).toEqual({
+                statusCode: 200,
+                headers: {"Content-Type": "application/json"},
+                body: "{}"
+            });
+            done();
+        });
+    });
+
     it('should return error including CORS header', (done) => {
         const routeConfig = {
             cors: true,
