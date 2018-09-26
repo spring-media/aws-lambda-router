@@ -3,14 +3,50 @@
 [![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router)
 [![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
 
-## aws-lambda-router
+# aws-lambda-router
 
-A small library providing routing for AWS ApiGateway Proxy Integrations and SNS...
+A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway) [Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) and [SNS](https://aws.amazon.com/sns).
 
-## Install
+## Features
+
+* Easy Handling of [ANY method](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html#setup-method-add-http-method) in API Gateways
+* Simplifies writing lambda handlers (in nodejs)
+* Lambda Proxy Resource support for AWS API Gateway
+* Enable CORS for the requests
+
+## Installation
+Install via npm.
 
 ```
 $ npm install aws-lambda-router
+```
+
+## Getting Started
+
+This is an simple using of `aws-lambda-router` in connection with ANY method and the API Gateway proxy Intergration. The following code will response with a message when executed using the AWS API Gateway with a `GET` request  of URL path `<base-url-of-gateway/gateway-mapping/article/123`.
+
+```js
+const router = require('aws-lambda-router');
+
+// handler for an api gateway event
+exports.handler = router.handler(
+{
+    // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
+    proxyIntegration: {
+        routes: [
+            {
+                // request-path-pattern with a path variable:
+                path: '/article/:id',
+                method: 'GET',
+                // we can use the path param 'id' in the action call:
+                action: (request, context) => {
+                    return "You called me with: " + request.paths.id;
+                }
+            }
+        ]
+    }
+}
+
 ```
 
 ## Usage
@@ -37,13 +73,6 @@ exports.handler = router.handler(
                 method: 'POST',
                 // provide a function to be called with the propriate data
                 action: (request, context) => doAnything(request.body)
-            },
-            {
-                // request-path-pattern with a path variable:
-                path: '/article/:id',
-                method: 'GET',
-                // we can use the path param 'id' in the action call:
-                action: (request, context) => getSomething(request.paths.id)
             },
             {
                 path: '/:id',
