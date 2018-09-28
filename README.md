@@ -12,27 +12,32 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 * Easy Handling of [ANY method](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html#setup-method-add-http-method) in API Gateways
 * Simplifies writing lambda handlers (in nodejs)
 * Lambda Proxy Resource support for AWS API Gateway
-* Enable CORS for the requests
-* No dependencies
-* Currently there are two `processors` (caller for Lambda) implemented: API Gateway ANY method (called proxyIntegration) and SNS. 
+* Enable CORS for requests
+* No external dependencies
+* Currently there are two `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration) and SNS. 
 
 ## Installation
-Install via npm.
+Install via npm
 
 ```
 $ npm install aws-lambda-router
 ```
+or yarn
+
+```
+$ yarn install aws-lambda-router
+```
 
 ## Getting Started
 
-This is an simple using of `aws-lambda-router` in connection with ANY method and the API Gateway proxy Intergration. The following code will response with a message when executed using the AWS API Gateway with a `GET` request  of URL path `<base-url-of-gateway/gateway-mapping/article/123`.
+This is a simple example of `aws-lambda-router` in conjunction with ANY method and the API Gateway proxy integration. The following code will respond with a message when executed using an AWS API Gateway with a `GET` request on URL path `<base-url-of-gateway>/gateway-mapping/article/123`.
 
 ```js
 const router = require('aws-lambda-router');
 
 // handler for an api gateway event
 exports.handler = router.handler({
-    // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
+    // for handling an http-call from an AWS API Gateway proxyIntegration we provide the following config:
     proxyIntegration: {
         routes: [
             {
@@ -52,7 +57,7 @@ exports.handler = router.handler({
 
 ## Enable CORS 
 
-To activate CORS on all http methods (OPTIONS requests are handled automatically) you only sets the parameter `cors` to `true` of the `proxyIntegration` rule. 
+To activate CORS on all http methods (OPTIONS requests are handled automatically) you only need to set the parameter `cors` to `true` on the `proxyIntegration` rule. 
 
 See the following example:  
 
@@ -68,7 +73,7 @@ exports.handler = router.handler({
             {
                 path: '/graphql',
                 method: 'POST',
-                // provide a function to be called with the propriate data
+                // provide a function to be called with the appropriate data
                 action: (request, context) => doAnything(request.body)
             }
         ]
@@ -138,24 +143,24 @@ exports.handler = router.handler({
 
 ### Custom response
 
-Per default a status code 200 will be returned. This behavior can be override.
+Per default a status code 200 will be returned. This behavior can be overridden.
 
-By providing body in the returned object you can modify statuscode and response headers.
+By providing a body property in the returned object you can modify the status code and response headers.
 
 ```js
 return {
         // Allow for custom status codes depending on execution.
         statusCode: 218,
-        // Headers will merge with CORs headers when enabled.
+        // Headers will merge with CORS headers when enabled.
         // Will merge with Content-Type: application/json
         headers: {
             'x-new-header': 'another-value'
         },
-       // When returning a custom response object, a key of body is required
+        // When returning a custom response object, a key of body is required
         // The value of body needs to be JSON stringified, this matches
         // the expected response for an AWS Lambda.
         body: JSON.stringify({
-            foo:'bar'
+            foo: 'bar'
         })
     };
 ```
