@@ -27,7 +27,17 @@ export interface SnsConfig {
     debug?: boolean;
 }
 
+export interface SqsRoute {
+    action?: (records: any, context: any) => any;
+}
+
+export interface SqsConfig {
+    routes: SqsRoute[];
+    debug?: boolean;
+}
+
 export interface RouteConfig {
     proxyIntegration?: ProxyIntegrationConfig;
     sns?: SnsConfig;
+    sqs?: SqsConfig;
 }

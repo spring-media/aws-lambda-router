@@ -5,7 +5,7 @@
 
 ## aws-lambda-router
 
-A small library providing routing for AWS ApiGateway Proxy Integrations and SNS...
+A small library providing routing for AWS ApiGateway Proxy Integrations, SNS and SQS ...
 
 ## Install
 
@@ -61,7 +61,7 @@ exports.handler = router.handler(
             'ServerError': 500
         }
     },
-    // for handling calls initiated from AWS-SNS:
+    // for handling calls initiated by AWS-SNS:
     sns: {
         routes: [
             {
@@ -69,6 +69,15 @@ exports.handler = router.handler(
                 subject: /.*/,
                 // Attention: the message is JSON-stringified
                 action: (sns, context) => service.doSomething(JSON.parse(sns.Message))
+            }
+        ]
+    },
+    // for handling calls initiated by AWS-SQS:
+    sqs: {
+        routes: [
+            {
+                // Attention: the message is JSON-stringified
+                action: (records, context) => service.doSomething(JSON.parse(records[0].body))
             }
         ]
     }
