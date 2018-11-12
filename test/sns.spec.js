@@ -55,5 +55,18 @@ describe('sns.processor', () => {
         expect(sns(snsCfg, event)).toBe(2);
     });
 
+    it('should not fail on missing subject', () => {
+        const snsCfg = {routes: [{action: () => 1}]};
+        sns(snsCfg, {Records: [{Sns: {Subject: 'Subject'}}]});
+    });
+
+    it('should fail on missing action', () => {
+        const snsCfg = {routes: [{subject: /.*/}]};
+        try {
+            sns(snsCfg, {Records: [{Sns: {Subject: 'Subject'}}]});
+            fail();
+        } catch (e) {
+        }
+    });
 
 });

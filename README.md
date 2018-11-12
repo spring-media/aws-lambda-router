@@ -14,7 +14,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
 * No external dependencies
-* Currently there are two `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration) and SNS. 
+* Currently there are two `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration), SNS and SQS. 
 
 ## Installation
 Install via npm
@@ -140,6 +140,35 @@ exports.handler = router.handler({
     }
 });
 ```
+
+## SQS to Lambda Integrations
+
+For handling calls in Lambdas initiated from AWS-SQS you can use the following code snippet:
+
+```js
+const router = require('aws-lambda-router');
+
+exports.handler = router.handler({
+    sqs: {
+        routes: [
+            {
+                // match complete SQS ARN:
+                source: 'arn:aws:sqs:us-west-2:594035263019:aticle-import',
+                // Attention: the body is JSON-stringified
+                action: (record, context) => service.doImport(JSON.parse(record.body))
+            },
+            {
+                // a regex to match the source SQS ARN:
+                source: /.*notification/,
+                // Attention: the body is JSON-stringified
+                action: (record, context) => service.doNotify(JSON.parse(record.body))
+            }
+        ]
+    }
+});
+```
+
+If more than one routes match, only the first is used!
 
 ### Custom response
 
