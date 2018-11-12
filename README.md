@@ -3,65 +3,131 @@
 [![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router)
 [![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
 
-## aws-lambda-router
+# aws-lambda-router
 
-A small library providing routing for AWS ApiGateway Proxy Integrations, SNS and SQS ...
+A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway) [Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) and [SNS](https://aws.amazon.com/sns).
 
-## Install
+## Features
+
+* Easy Handling of [ANY method](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html#setup-method-add-http-method) in API Gateways
+* Simplifies writing lambda handlers (in nodejs)
+* Lambda Proxy Resource support for AWS API Gateway
+* Enable CORS for requests
+* No external dependencies
+* Currently there are two `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration) and SNS. 
+
+## Installation
+Install via npm
 
 ```
 $ npm install aws-lambda-router
 ```
+or yarn
 
-## Usage
+```
+$ yarn install aws-lambda-router
+```
+
+## Getting Started
+
+This is a simple example of `aws-lambda-router` in conjunction with ANY method and the API Gateway proxy integration. The following code will respond with a message when executed using an AWS API Gateway with a `GET` request on URL path `<base-url-of-gateway>/gateway-mapping/article/123`.
 
 ```js
 const router = require('aws-lambda-router');
 
-exports.handler = router.handler(
-    // the router-config contains configs for every type of 'processor'
-{
-    // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
+// handler for an api gateway event
+exports.handler = router.handler({
+    // for handling an http-call from an AWS API Gateway proxyIntegration we provide the following config:
     proxyIntegration: {
-        // activate CORS on all http-methods (OPTIONS requests are handled automagically);
-        // if set to true, these default headers will be sent on every response:
-        // "Access-Control-Allow-Origin" = "'*'"
-        // "Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,HEAD,PATCH'"
-        // "Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        cors: true,
         routes: [
-            {
-                // the request-path-pattern to match:
-                path: '/graphql',
-                // http method to match
-                method: 'POST',
-                // provide a function to be called with the propriate data
-                action: (request, context) => doAnything(request.body)
-            },
             {
                 // request-path-pattern with a path variable:
                 path: '/article/:id',
                 method: 'GET',
                 // we can use the path param 'id' in the action call:
-                action: (request, context) => getSomething(request.paths.id)
-            },
+                action: (request, context) => {
+                    return "You called me with: " + request.paths.id;
+                }
+            }
+        ]
+    }
+}
+```
+
+
+## Enable CORS 
+
+To activate CORS on all http methods (OPTIONS requests are handled automatically) you only need to set the parameter `cors` to `true` on the `proxyIntegration` rule. 
+
+See the following example:  
+
+
+```js
+const router = require('aws-lambda-router');
+
+exports.handler = router.handler({
+    // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
+    proxyIntegration: {
+        cors: true,
+        routes: [
             {
-                path: '/:id',
-                method: 'DELETE',
-                action: (request, context) => deleteSomething(request.paths.id)
+                path: '/graphql',
+                method: 'POST',
+                // provide a function to be called with the appropriate data
+                action: (request, context) => doAnything(request.body)
+            }
+        ]
+    }
+});
+```  
+
+If CORS is activated, these default headers will be sent on every response:  
+    
+    "Access-Control-Allow-Origin" = "'*'"
+    "Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,HEAD,PATCH'"
+    "Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+
+
+## Errormapping
+
+```js
+const router = require('aws-lambda-router');
+
+exports.handler = router.handler({
+    // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
+    proxyIntegration: {
+        routes: [
+            {
+                path: '/graphql',
+                method: 'POST',
+                action: (request, context) => doAnything(request.body)
             }
         ],
         debug: true,
-        // custom mapping of thrown errors to http response code error:
-        // the action can throw an object like
-        // "throw {reason: 'NotFound', message: 'object id not found'}"
-        // the http response then contains the configured value as response code and the message as the body
         errorMapping: {
             'NotFound': 404,
             'ServerError': 500
         }
-    },
-    // for handling calls initiated by AWS-SNS:
+    }
+});
+``` 
+
+With the key word `errorMapping` shown in the example above you can custom mapping of thrown errors to http response code error.
+The action can throw an object like
+
+    "throw {reason: 'NotFound', message: 'object id not found'}"
+
+and the http response then contains the configured value as response code and the message as the body.
+        
+
+## SNS to Lambda Integrations
+
+For handling calls in Lambdas initiated from AWS-SNS you can use the following code snippet:
+
+```js
+const router = require('aws-lambda-router');
+
+exports.handler = router.handler({
     sns: {
         routes: [
             {
@@ -71,44 +137,35 @@ exports.handler = router.handler(
                 action: (sns, context) => service.doSomething(JSON.parse(sns.Message))
             }
         ]
-    },
-    // for handling calls initiated by AWS-SQS:
-    sqs: {
-        routes: [
-            {
-                // Attention: the message is JSON-stringified
-                action: (records, context) => service.doSomething(JSON.parse(records[0].body))
-            }
-        ]
     }
 });
 ```
 
 ### Custom response
 
-Per default a status code 200 will be returned. This behavior can be override.
+Per default a status code 200 will be returned. This behavior can be overridden.
 
-By providing body in the returned object you can modify statuscode and response headers.
+By providing a body property in the returned object you can modify the status code and response headers.
 
 ```js
 return {
         // Allow for custom status codes depending on execution.
         statusCode: 218,
-        // Headers will merge with CORs headers when enabled.
+        // Headers will merge with CORS headers when enabled.
         // Will merge with Content-Type: application/json
         headers: {
             'x-new-header': 'another-value'
         },
-       // When returning a custom response object, a key of body is required
+        // When returning a custom response object, a key of body is required
         // The value of body needs to be JSON stringified, this matches
         // the expected response for an AWS Lambda.
         body: JSON.stringify({
-            foo:'bar'
+            foo: 'bar'
         })
     };
 ```
 
-## local developement
+## Local developement
 
 The best is to work with ```yarn link```
 

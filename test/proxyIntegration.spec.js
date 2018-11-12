@@ -248,7 +248,7 @@ describe('proxyIntegration.routeHandler', () => {
         proxyIntegration({routes: [{}]}, {httpMethod: 'GET', path: '/', body: '{keinJson'}).then(result => {
             expect(result).toEqual({
                 statusCode: 400,
-                body: jasmine.stringMatching(/JSON/),
+                body: JSON.stringify({"message":"body is not a valid JSON","error":"ParseError"}),
                 headers: jasmine.anything()
             });
             done();
@@ -375,7 +375,7 @@ describe('proxyIntegration.routeHandler', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
             expect(result).toEqual({
                 statusCode: 501,
-                body: '"bla"',
+                body: '{"message":"bla","error":"myerror"}',
                 headers: Object.assign({"Content-Type": "application/json"}, expectedCorsHeaders)
             });
             done();
@@ -397,7 +397,7 @@ describe('proxyIntegration.routeHandler', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
             expect(result).toEqual({
                 statusCode: 500,
-                body: 'Generic error: ' + JSON.stringify(incorrectError),
+                body: JSON.stringify({error: "ServerError", message: "Generic error:" + JSON.stringify(incorrectError) }),
                 headers: expectedCorsHeaders
             });
             done();
@@ -419,7 +419,7 @@ describe('proxyIntegration.routeHandler', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
             expect(result).toEqual({
                 statusCode: 666,
-                body: '{"reason":"oops"}',
+                body: '{"message":{"reason":"oops"},"error":666}',
                 headers: expectedCorsHeaders
             });
             done();
@@ -481,7 +481,7 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
         proxyIntegration(routeConfig, {path: '/', httpMethod: 'GET'}).then(result => {
             expect(result).toEqual({
                 statusCode: 599,
-                body: '"doof"',
+                body: '{"message":"doof","error":"myError"}',
                 headers: {"Content-Type": "application/json"}
             });
             done();
