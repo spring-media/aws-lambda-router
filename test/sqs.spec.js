@@ -13,7 +13,7 @@ describe('sqs.processor', () => {
 
         sqs(sqsCfg, event, context);
 
-        expect(actionSpy).toHaveBeenCalledWith(event.Records[0], context);
+        expect(actionSpy).toHaveBeenCalledWith([event.Records[0].body], context);
     });
 
     it('should ignore event if it is no SQS event', () => {
@@ -41,7 +41,8 @@ describe('sqs.processor', () => {
     it('should call action with sqs-message', () => {
         const sqsCfg = {routes: [{source: /porter/, action: (events) => events}]};
         const event = {Records: [{eventSource: 'aws:sqs', eventSourceARN: 'importer', body: 'B'}]};
-        expect(sqs(sqsCfg, event)).toBe(event.Records[0]);
+
+        expect(sqs(sqsCfg, event)).toEqual([event.Records[0].body]);
     });
 
     it('should call first action with matching subject', () => {

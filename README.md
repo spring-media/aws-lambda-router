@@ -155,20 +155,23 @@ exports.handler = router.handler({
                 // match complete SQS ARN:
                 source: 'arn:aws:sqs:us-west-2:594035263019:aticle-import',
                 // Attention: the body is JSON-stringified
-                action: (record, context) => service.doImport(JSON.parse(record.body))
+                action: (messages, context) => service.doImport(messages)
             },
             {
                 // a regex to match the source SQS ARN:
                 source: /.*notification/,
                 // Attention: the body is JSON-stringified
-                action: (record, context) => service.doNotify(JSON.parse(record.body))
+                action: (messages, context) => service.doNotify(messages)
             }
         ]
     }
 });
 ```
 
-If more than one routes match, only the first is used!
+An SQS message always contains an array of records. In each SQS record there is the message in the body JSON key. 
+The `action` method gets all body elements from the router as an array.
+
+If more than one route matches, only the **first** is used!
 
 ### Custom response
 
@@ -203,6 +206,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
+* 0.5.0 new feature: SQS route integration now available; bugfix: SNS integration now works woth Array of message instead of single message
 * 0.4.0 now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
 * 0.3.1 proxyIntegration: avoid error if response object is not set; add some debug logging
 * 0.3.0 proxyIntegration: add PATCH method; allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))

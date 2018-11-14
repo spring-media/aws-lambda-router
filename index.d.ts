@@ -29,7 +29,7 @@ export interface SnsConfig {
 
 export interface SqsRoute {
     source: string | RegExp;
-    action: (record: any, context: any) => any;
+    action: (messages: any[], context: any) => any;
 }
 
 export interface SqsConfig {
