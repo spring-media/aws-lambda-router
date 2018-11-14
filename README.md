@@ -14,7 +14,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
 * No external dependencies
-* Currently there are two `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration) and SNS. 
+* Currently there are two `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration), SNS and SQS. 
 
 ## Installation
 Install via npm
@@ -141,6 +141,38 @@ exports.handler = router.handler({
 });
 ```
 
+## SQS to Lambda Integrations
+
+For handling calls in Lambdas initiated from AWS-SQS you can use the following code snippet:
+
+```js
+const router = require('aws-lambda-router');
+
+exports.handler = router.handler({
+    sqs: {
+        routes: [
+            {
+                // match complete SQS ARN:
+                source: 'arn:aws:sqs:us-west-2:594035263019:aticle-import',
+                // Attention: the messages Array is JSON-stringified
+                action: (messages, context) => messages.forEach(message => console.log(JSON.parse(message)))
+            },
+            {
+                // a regex to match the source SQS ARN:
+                source: /.*notification/,
+                // Attention: the messages array is JSON-stringified
+                action: (messages, context) => service.doNotify(messages)
+            }
+        ]
+    }
+});
+```
+
+An SQS message always contains an array of records. In each SQS record there is the message in the body JSON key. 
+The `action` method gets all body elements from the router as an array.
+
+If more than one route matches, only the **first** is used!
+
 ### Custom response
 
 Per default a status code 200 will be returned. This behavior can be overridden.
@@ -174,6 +206,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
+* 0.5.0 new feature: SQS route integration now available; bugfix: SNS integration now works woth Array of message instead of single message
 * 0.4.0 now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
 * 0.3.1 proxyIntegration: avoid error if response object is not set; add some debug logging
 * 0.3.0 proxyIntegration: add PATCH method; allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))

@@ -6,7 +6,7 @@ export function handler(routeConfig: RouteConfig): any;
 export interface ProxyIntegrationRoute {
     path: string;
     method: string;
-    action?: (request: any, context: any) => any;
+    action: (request: any, context: any) => any;
 }
 
 export interface ProxyIntegrationConfig {
@@ -18,8 +18,8 @@ export interface ProxyIntegrationConfig {
 }
 
 export interface SnsRoute {
-    subject: any;
-    action?: (sns: any, context: any) => any;
+    subject: RegExp;
+    action: (sns: any, context: any) => any;
 }
 
 export interface SnsConfig {
@@ -27,7 +27,18 @@ export interface SnsConfig {
     debug?: boolean;
 }
 
+export interface SqsRoute {
+    source: string | RegExp;
+    action: (messages: any[], context: any) => any;
+}
+
+export interface SqsConfig {
+    routes: SqsRoute[];
+    debug?: boolean;
+}
+
 export interface RouteConfig {
     proxyIntegration?: ProxyIntegrationConfig;
     sns?: SnsConfig;
+    sqs?: SqsConfig;
 }
