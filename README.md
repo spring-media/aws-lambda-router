@@ -154,13 +154,13 @@ exports.handler = router.handler({
             {
                 // match complete SQS ARN:
                 source: 'arn:aws:sqs:us-west-2:594035263019:aticle-import',
-                // Attention: the body is JSON-stringified
-                action: (messages, context) => service.doImport(messages)
+                // Attention: the messages Array is JSON-stringified
+                action: (messages, context) => messages.forEach(message => console.log(JSON.parse(message)))
             },
             {
                 // a regex to match the source SQS ARN:
                 source: /.*notification/,
-                // Attention: the body is JSON-stringified
+                // Attention: the messages array is JSON-stringified
                 action: (messages, context) => service.doNotify(messages)
             }
         ]
