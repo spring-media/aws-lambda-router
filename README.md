@@ -5,7 +5,8 @@
 
 # aws-lambda-router
 
-A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway) [Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) and [SNS](https://aws.amazon.com/sns).
+A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway) [Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html), 
+[SNS](https://aws.amazon.com/sns) and [SQS](https://aws.amazon.com/sqs).
 
 ## Features
 
@@ -14,7 +15,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
 * No external dependencies
-* Currently there are two `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration), SNS and SQS. 
+* Currently there are three `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration), SNS and SQS. 
 
 ## Installation
 Install via npm
@@ -140,6 +141,8 @@ exports.handler = router.handler({
     }
 });
 ```
+
+
 
 ## SQS to Lambda Integrations
 

@@ -13,7 +13,7 @@ describe('sns.processor', () => {
 
         sns(snsCfg, event, context);
 
-        expect(actionSpy).toHaveBeenCalledWith(event.Records[0].Sns, context);
+        expect(actionSpy).toHaveBeenCalledWith([event.Records[0].Sns], context);
     });
 
     it('should ignore event if it is no SNS event', () => {
@@ -41,7 +41,7 @@ describe('sns.processor', () => {
     it('should call action with sns-message', () => {
         const snsCfg = {routes: [{subject: /.*/, action: (sns) => sns}]};
         const event = {Records: [{Sns: {Subject: 'S', Message: 'M'}}]};
-        expect(sns(snsCfg, event)).toBe(event.Records[0].Sns);
+        expect(sns(snsCfg, event)).toEqual([event.Records[0].Sns]);
     });
 
     it('should call first action with matching subject', () => {
@@ -53,6 +53,21 @@ describe('sns.processor', () => {
         };
         const event = {Records: [{Sns: {Subject: '1234', Message: 'M'}}]};
         expect(sns(snsCfg, event)).toBe(2);
+    });
+
+    it('TEST source', () => {
+        console.log("start TEST")
+
+        console.log("regex: " + new RegExp('/1/').test("345"));
+        const snsCfg = {
+            routes: [
+                {subject: /1/, action: () => 1},
+                {subject: /2/, action: () => 2},
+                {subject: /3/, action: () => 3}
+            ]
+        };
+        const event = {Records: [{Sns: {Subject: '345', Message: 'M'}}]};
+        expect(sns(snsCfg, event)).toBe(3);
     });
 
     it('should not fail on missing subject', () => {
