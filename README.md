@@ -5,7 +5,9 @@
 
 # aws-lambda-router
 
-A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway) [Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) and [SNS](https://aws.amazon.com/sns).
+A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway),
+[Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html), [SNS](https://aws.amazon.com/sns) 
+and [S3 Events](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html). 
 
 ## Features
 
@@ -14,7 +16,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
 * No external dependencies
-* Currently there are two `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration), SNS and SQS. 
+* Currently there are four `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration), SNS, SQS and S3. 
 
 ## Installation
 Install via npm
@@ -122,6 +124,8 @@ and the http response then contains the configured value as response code and th
 
 ## SNS to Lambda Integrations
 
+SNS Event Structure: https://docs.aws.amazon.com/sns/latest/dg/sns-message-and-json-formats.html
+
 For handling calls in Lambdas initiated from AWS-SNS you can use the following code snippet:
 
 ```js
@@ -172,6 +176,69 @@ An SQS message always contains an array of records. In each SQS record there is 
 The `action` method gets all body elements from the router as an array.
 
 If more than one route matches, only the **first** is used!
+
+## S3 to Lambda Integrations
+
+
+Lambdas can be triggered by S3 events. The router now supports these events.
+With the router it is very easy and flexible to connect a lambda to different s3 sources (different buckets). The following possibilities are available:
+
+- bucketName: By specifying a fixed _bucketName_ all s3 events with this bucket name are forwarded to a certain action. Instead of a fixed bucket a _RegExp_ is also possible.
+- eventName: By configuring the [S3 event name](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html#supported-notification-event-types) the routing can be further restricted. A _RegExp_ is also possible here.
+
+A combination of bucketName and eventName is possible. If no _bucketName_ and _eventName_ is configured, all s3 events are forwarded to the action.
+
+The action method will be called with the [S3Event Structure](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html)
+
+The following examples demonstrates the most use cases: 
+
+```js
+const router = require('aws-lambda-router');
+
+exports.handler = router.handler({
+    s3: {
+        routes: [
+            {
+                //match every s3 record to this action 
+                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+            },
+            {
+                //match s3 events which created, bucket name is whitelisted here
+                eventName: 'ObjectCreated:Put',
+                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+            },
+            {
+                //event name is an regex: match 'ObjectCreated:Put' or 'ObjectCreated:Copy'
+                eventName: /ObjectCreated:*/,
+                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+            },
+            {
+                //exact name of bucket 'myBucket', event name is whitelisted and will not be checked
+                bucketName: 'myBucket',
+                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+            },
+            {
+                //regex of bucket name (all buckets started with 'bucket-dev-' will be machted
+                bucketName: /^bucket-dev-.*/,
+                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+            },
+            { 
+                //action only will be called if bucket and event matched to the given regex
+                bucketName: /bucket-dev-.*/,
+                eventName: /ObjectCreated:*/,
+                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+            },
+            { 
+                //action only will be called if bucket and event matched to the given fixed string
+                bucketName: 'bucket',
+                eventName: 'ObjectRemoved:Delete',
+                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+            }
+        ]
+    }
+});
+```
+
 
 ### Custom response
 
