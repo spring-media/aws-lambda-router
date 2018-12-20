@@ -27,11 +27,9 @@
   },
   "homepage": "https://github.com/spring-media/aws-lambda-router#readme",
   "devDependencies": {
-    "del": "2.2.2",
     "gulp": "4.0",
-    "gulp-install": "1.1.0",
     "gulp-jasmine": "4.0.0",
-    "gulp-zip": "4.2.0",
+    "jasmine": "3.3.1",
     "proxyquire": "2.1.0"
   }
 }
