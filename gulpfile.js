@@ -1,6 +1,4 @@
 const gulp = require('gulp');
-const del = require('del');
-const install = require('gulp-install');
 const jasmine = require('gulp-jasmine');
 
 gulp.task('test', () =>

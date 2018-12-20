@@ -37,8 +37,21 @@ export interface SqsConfig {
     debug?: boolean;
 }
 
+export interface S3Route {
+    bucketName?: string | RegExp;
+    eventName?: string | RegExp;
+    objectKeyPrefix?: string;
+    action: (s3Event: any[], context: any) => any;
+}
+
+export interface S3Config {
+    routes: S3Route[];
+    debug?: boolean;
+}
+
 export interface RouteConfig {
     proxyIntegration?: ProxyIntegrationConfig;
     sns?: SnsConfig;
     sqs?: SqsConfig;
+    s3?: S3Config;
 }
