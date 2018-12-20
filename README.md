@@ -185,12 +185,13 @@ With the router it is very easy and flexible to connect a lambda to different s3
 
 - bucketName: By specifying a fixed _bucketName_ all s3 events with this bucket name are forwarded to a certain action. Instead of a fixed bucket a _RegExp_ is also possible.
 - eventName: By configuring the [S3 event name](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html#supported-notification-event-types) the routing can be further restricted. A _RegExp_ is also possible here.
+- objectKeyPrefix: fixed string as an prefix of an object key (but not an RegExp). Is useful if you want to organize your bucket in subfolder. 
 
-A combination of bucketName and eventName is possible. If no _bucketName_ and _eventName_ is configured, all s3 events are forwarded to the action.
+A combination of bucketName, eventName and objectKeyPrefix is possible. If no _bucketName_, _eventName_ and _objectKeyPrefix_ is configured, all s3 events are forwarded to the action.
 
 The action method will be called with the [S3Event Structure](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html)
 
-The following examples demonstrates the most use cases: 
+The following examples demonstrates the most use cases:
 
 ```js
 const router = require('aws-lambda-router');
@@ -233,12 +234,22 @@ exports.handler = router.handler({
                 bucketName: 'bucket',
                 eventName: 'ObjectRemoved:Delete',
                 action: (event, context) => console.log(event.s3.object.key, event.eventName)
+            },
+            { 
+                //match if s3 events comes from Bucket 'bucket' with event 'ObjectRemoved:Delete' 
+                // and the object key starts with /upload
+                objectKeyPrefix: '/upload',
+                bucketName: 'bucket',
+                eventName: 'ObjectRemoved:Delete',
+                action: (event, context) => console.log(event.s3.object.key, event.eventName)
             }
-        ]
+        ],
+        debug: true
     }
 });
 ```
 
+Per s3 event there can be several entries per event. Than the action methods are called one after the other. The result is an array with objects insides.
 
 ### Custom response
 

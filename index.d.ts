@@ -40,6 +40,7 @@ export interface SqsConfig {
 export interface S3Route {
     bucketName?: string | RegExp;
     eventName?: string | RegExp;
+    objectKeyPrefix?: string;
     action: (s3Event: any[], context: any) => any;
 }
 

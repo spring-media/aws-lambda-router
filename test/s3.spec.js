@@ -19,6 +19,21 @@ function createTestEvent(eventName, bucketName, objectKey) {
     };
 }
 
+function singleEvent(eventName, bucketName, key) {
+    return {
+                eventSource: 'aws:s3',
+                eventName: eventName,
+                s3: {
+                    bucket: {
+                        name: bucketName
+                    },
+                    object: {
+                        key: key
+                    }
+                }
+    };
+}
+
 function createTwoEvents(eventName, bucketName, eventName2, bucketName2) {
     return {
         Records: [
@@ -224,6 +239,72 @@ describe('s3.processor', () => {
         expect(actionSpy).toHaveBeenCalledWith(eventFixture.Records[0], context);
     });
 
+    it('object key prefix with bucket name should match', () => {
+        const actionSpy = jasmine.createSpy('action');
+
+        const s3Cfg = {routes: [{objectKeyPrefix: 'upload', bucketName: 'test', action: actionSpy}]};
+
+        const eventFixture = createTestEvent('ObjectCreated:Put', 'test', 'upload/file.jpg');
+
+        s3(s3Cfg, eventFixture, context);
+
+        expect(actionSpy).toHaveBeenCalledWith(eventFixture.Records[0], context);
+    });
+
+    it('object key prefix should match', () => {
+        const actionSpy = jasmine.createSpy('action');
+
+        const s3Cfg = {routes: [{objectKeyPrefix: 'upload', action: actionSpy}]};
+
+        const eventFixture = createTestEvent('ObjectCreated:Put', 'bucket', 'upload/file.jpg');
+
+        s3(s3Cfg, eventFixture, context);
+
+        expect(actionSpy).toHaveBeenCalledWith(eventFixture.Records[0], context);
+    });
+
+    it('object key prefix not should match', () => {
+        const actionSpy = jasmine.createSpy('action');
+
+        const s3Cfg = {routes: [{objectKeyPrefix: '/upload', action: actionSpy}]};
+
+        const eventFixture = createTestEvent('ObjectCreated:Put', 'bucket', 'upload/file.jpg');
+
+        s3(s3Cfg, eventFixture, context);
+
+        expect(actionSpy).not.toHaveBeenCalled();
+    });
+
+
+    it('object key prefix wih more then one route', () => {
+        const actionSpyDpa = jasmine.createSpy('action');
+        const actionSpyAfp = jasmine.createSpy('action');
+        const actionSpyRtr = jasmine.createSpy('action');
+
+        const s3Cfg = {routes: [
+            {objectKeyPrefix: 'dpa', action: actionSpyDpa},
+            {objectKeyPrefix: 'afp', action: actionSpyAfp},
+            {objectKeyPrefix: 'rtr', action: actionSpyRtr}
+            ]};
+
+        const eventFixture1 = singleEvent('ObjectCreated:Put', 'bucket', 'rtr/file.jpg');
+        const eventFixture2 = singleEvent('ObjectCreated:Put', 'bucket', 'afp/file.jpg');
+        const eventFixture3 = singleEvent('ObjectCreated:Put', 'bucket', 'rtr/file.jpg');
+        const eventFixture4 = singleEvent('ObjectCreated:Put', 'bucket', 'dpa/file.jpg');
+        const records = []
+        records.push(eventFixture1, eventFixture2, eventFixture3, eventFixture4);
+
+        s3(s3Cfg, { Records: records}, context);
+
+        expect(actionSpyDpa).toHaveBeenCalledTimes(1);
+        expect(actionSpyDpa).toHaveBeenCalledWith(eventFixture4, context);
+
+        expect(actionSpyAfp).toHaveBeenCalledTimes(1);
+        expect(actionSpyAfp).toHaveBeenCalledWith(eventFixture2, context);
+
+        expect(actionSpyRtr).toHaveBeenCalledTimes(2);
+    });
+
     it('should ignore event if it is no S3 event', () => {
         const s3Cfg = {routes: [{subject: /.*/, action: () => 1}]};
         expect(s3(s3Cfg, {})).toBe(null);
@@ -236,7 +317,7 @@ describe('s3.processor', () => {
         const actionSpy2 = jasmine.createSpy('action');
 
         const s3Cfg = {
-            debug: true, routes: [
+            routes: [
                 {bucketName: 'buckettest', action: actionSpy1},
                 {bucketName: 'buckettest', action: actionSpy2}
             ]
