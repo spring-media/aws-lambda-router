@@ -284,6 +284,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
+* 0.6.0 new feature: S3 routes available. 
 * 0.5.0 new feature: SQS route integration now available; bugfix: SNS integration now works woth Array of message instead of single message
 * 0.4.0 now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
 * 0.3.1 proxyIntegration: avoid error if response object is not set; add some debug logging
