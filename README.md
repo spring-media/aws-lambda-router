@@ -181,15 +181,15 @@ If more than one route matches, only the **first** is used!
 
 
 Lambdas can be triggered by S3 events. The router now supports these events.
-With the router it is very easy and flexible to connect a lambda to different s3 sources (different buckets). The following possibilities are available:
+With the router it is very easy and flexible to connect a lambda to different s3 sources (different buckets). The following configurations are available:
 
-- bucketName: By specifying a fixed _bucketName_ all s3 events with this bucket name are forwarded to a certain action. Instead of a fixed bucket a _RegExp_ is also possible.
+- bucketName: By specifying a fixed _bucketName_ all s3 records with this bucket name are forwarded to a certain action. Instead of a fixed bucket a _RegExp_ is also possible.
 - eventName: By configuring the [S3 event name](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html#supported-notification-event-types) the routing can be further restricted. A _RegExp_ is also possible here.
 - objectKeyPrefix: fixed string as an prefix of an object key (but not an RegExp). Is useful if you want to organize your bucket in subfolder. 
 
-A combination of bucketName, eventName and objectKeyPrefix is possible. If no _bucketName_, _eventName_ and _objectKeyPrefix_ is configured, all s3 events are forwarded to the action.
+A combination of bucketName, eventName and objectKeyPrefix is possible. If no _bucketName_, _eventName_ and _objectKeyPrefix_ is configured, all records of s3 events are forwarded to the action.
 
-The action method will be called with the [S3Event Structure](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html)
+The action method will be called with the records of the [S3Event Structure](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html)
 
 The following examples demonstrates the most use cases:
 
@@ -201,39 +201,39 @@ exports.handler = router.handler({
         routes: [
             {
                 //match every s3 record to this action 
-                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+                action: (record, context) => console.log(record.s3.object.key, record.eventName)
             },
             {
                 //match s3 events which created, bucket name is whitelisted here
                 eventName: 'ObjectCreated:Put',
-                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+                action: (record, context) => console.log(record.s3.object.key, record.eventName)
             },
             {
                 //event name is an regex: match 'ObjectCreated:Put' or 'ObjectCreated:Copy'
                 eventName: /ObjectCreated:*/,
-                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+                action: (record, context) => console.log(record.s3.object.key, record.eventName)
             },
             {
                 //exact name of bucket 'myBucket', event name is whitelisted and will not be checked
                 bucketName: 'myBucket',
-                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+                action: (record, context) => console.log(record.s3.object.key, record.eventName)
             },
             {
                 //regex of bucket name (all buckets started with 'bucket-dev-' will be machted
                 bucketName: /^bucket-dev-.*/,
-                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+                action: (record, context) => console.log(record.s3.object.key, record.eventName)
             },
             { 
                 //action only will be called if bucket and event matched to the given regex
                 bucketName: /bucket-dev-.*/,
                 eventName: /ObjectCreated:*/,
-                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+                action: (record, context) => console.log(event.s3.object.key, record.eventName)
             },
             { 
                 //action only will be called if bucket and event matched to the given fixed string
                 bucketName: 'bucket',
                 eventName: 'ObjectRemoved:Delete',
-                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+                action: (record, context) => console.log(event.s3.object.key, record.eventName)
             },
             { 
                 //match if s3 events comes from Bucket 'bucket' with event 'ObjectRemoved:Delete' 
@@ -241,7 +241,7 @@ exports.handler = router.handler({
                 objectKeyPrefix: '/upload',
                 bucketName: 'bucket',
                 eventName: 'ObjectRemoved:Delete',
-                action: (event, context) => console.log(event.s3.object.key, event.eventName)
+                action: (record, context) => console.log(record.s3.object.key, record.eventName)
             }
         ],
         debug: true
@@ -249,7 +249,7 @@ exports.handler = router.handler({
 });
 ```
 
-Per s3 event there can be several entries per event. Than the action methods are called one after the other. The result is an array with objects insides.
+Per s3 event there can be several records per event. The action methods are called one after the other record. The result of the action method is an array with objects insides.
 
 ### Custom response
 
