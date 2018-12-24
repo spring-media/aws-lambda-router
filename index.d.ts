@@ -41,7 +41,7 @@ export interface S3Route {
     bucketName?: string | RegExp;
     eventName?: string | RegExp;
     objectKeyPrefix?: string;
-    action: (s3Record: any[], context: any) => any;
+    action: (s3Record: any, context: any) => any;
 }
 
 export interface S3Config {
