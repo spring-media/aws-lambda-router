@@ -284,6 +284,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
+* 0.6.1 s3: fix: aggregate result promises to one promise; fix: s3Route interface
 * 0.6.0 new feature: S3 routes available. 
 * 0.5.0 new feature: SQS route integration now available; bugfix: SNS integration now works woth Array of message instead of single message
 * 0.4.0 now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
