@@ -3,7 +3,7 @@
 function handler(routeConfig) {
     const eventProcessorMapping = extractEventProcessorMapping(routeConfig);
 
-    return (event, context, callback) => {
+    return async (event, context, callback) => {
         if (routeConfig.debug) {
             console.log("Lambda invoked with request:", event);
             console.log("Lambda invoked with context:", context);
@@ -22,12 +22,8 @@ function handler(routeConfig) {
                 const result = eventProcessorMapping.get(eventProcessorName)(routeConfig[eventProcessorName], event, context);
                 if (result) {
                     // be resilient against a processor returning a value instead of a promise:
-                    return Promise.resolve(result)
-                        .then(result => callback(null, result))
-                        .catch(error => {
-                            console.log(error.stack);
-                            callback(error.toString());
-                        });
+                    return await result;
+                    
                 } else {
                     if (routeConfig.debug) {
                         console.log("Event processor couldn't handle request.")
@@ -44,6 +40,7 @@ function handler(routeConfig) {
         callback('No event processor found to handle this kind of event!');
     }
 }
+
 
 function extractEventProcessorMapping(routeConfig) {
     const processorMap = new Map();
