@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router)
 [![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
 
-# aws-lambda-router
+# AWS Lambda Router
 
 A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway),
 [Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html), [SNS](https://aws.amazon.com/sns) 
@@ -19,6 +19,7 @@ and [S3 Events](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-con
 * Currently there are four `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration), SNS, SQS and S3. 
 
 ## Installation
+
 Install via npm
 
 ```
@@ -284,9 +285,10 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
+* 0.6.x take away old gulp dependency to run tests, works now with scripts in package.json
 * 0.6.1 s3: fix: aggregate result promises to one promise; fix: s3Route interface
 * 0.6.0 new feature: S3 routes available. 
-* 0.5.0 new feature: SQS route integration now available; bugfix: SNS integration now works woth Array of message instead of single message
+* 0.5.0 new feature: SQS route integration now available; bugfix: SNS integration now works with Array of message instead of single message
 * 0.4.0 now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
 * 0.3.1 proxyIntegration: avoid error if response object is not set; add some debug logging
 * 0.3.0 proxyIntegration: add PATCH method; allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
