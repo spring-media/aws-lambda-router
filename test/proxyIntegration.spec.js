@@ -221,28 +221,10 @@ describe('proxyIntegration.routeHandler', () => {
         }, context);
     });
     it('should not change path if not coming over custom domain name', () => {
-        const actionSpy = jasmine.createSpy('action');
-        const context = {};
-        const event = {
-            httpMethod: 'GET', path: "/123/456",
-            headers: {Host: "blabla.execute-api.eu-central-1.amazonaws.com"},
-            requestContext: {apiId: 'blabla'}
-        };
-        proxyIntegration({
-            routes: [{
-                method: 'GET',
-                path: '/123/456',
-                action: actionSpy
-            }]
-        }, event, context, () => {
-        });
-        expect(actionSpy).toHaveBeenCalledWith({
-            httpMethod: 'GET',
-            headers: jasmine.anything(),
-            requestContext: jasmine.anything(),
-            path: "/123/456",
-            paths: {}
-        }, context);
+        assertPathIsUnchanged("blabla.execute-api.eu-central-1.amazonaws.com");
+    });
+    it('should not change path if coming over localhost', () => {
+        assertPathIsUnchanged("localhost");
     });
     it('should return 400 for an invalid body', (done) => {
         proxyIntegration({routes: [{}]}, {httpMethod: 'GET', path: '/', body: '{keinJson'}).then(result => {
@@ -488,4 +470,29 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
         });
     });
 });
+
+function assertPathIsUnchanged(hostname) {
+    const actionSpy = jasmine.createSpy('action');
+    const context = {};
+    const event = {
+        httpMethod: 'GET', path: "/123/456",
+        headers: {Host: hostname},
+        requestContext: {apiId: 'blabla'}
+    };
+    proxyIntegration({
+        routes: [{
+            method: 'GET',
+            path: '/123/456',
+            action: actionSpy
+        }]
+    }, event, context, () => {
+    });
+    expect(actionSpy).toHaveBeenCalledWith({
+        httpMethod: 'GET',
+        headers: jasmine.anything(),
+        requestContext: jasmine.anything(),
+        path: "/123/456",
+        paths: {}
+    }, context);
+}
 
