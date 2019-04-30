@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "gulp test"
+    "test": "jasmine  --random=true test/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -27,9 +27,7 @@
   },
   "homepage": "https://github.com/spring-media/aws-lambda-router#readme",
   "devDependencies": {
-    "gulp": "4.0",
-    "gulp-jasmine": "4.0.0",
-    "jasmine": "3.3.1",
+    "jasmine": "3.4.0",
     "proxyquire": "2.1.0"
   }
 }
