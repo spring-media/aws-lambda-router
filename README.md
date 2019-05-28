@@ -103,16 +103,21 @@ exports.handler = router.handler({
             {
                 path: '/graphql',
                 method: 'POST',
-                action: (request, context) => doAnything(request.body)
+                action: (request, context) => doThrowAnException(request.body)
             }
         ],
         debug: true,
         errorMapping: {
             'NotFound': 404,
+            'MyCustomError': 429,
             'ServerError': 500
         }
     }
 });
+
+function doThrowAnException(body) {
+    throw {reason: 'MyCustomError', message: 'Throw an error for this example'}
+}
 ``` 
 
 With the key word `errorMapping` shown in the example above you can custom mapping of thrown errors to http response code error.
