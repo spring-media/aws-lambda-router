@@ -28,7 +28,7 @@ $ npm install aws-lambda-router
 or yarn
 
 ```
-$ yarn install aws-lambda-router
+$ yarn add aws-lambda-router
 ```
 
 ## Getting Started
