@@ -15,6 +15,7 @@ export interface ProxyIntegrationConfig {
     debug?: boolean;
     errorMapping?: any;
     defaultHeaders?: string;
+    proxyPath?: string;
 }
 
 export interface SnsRoute {
