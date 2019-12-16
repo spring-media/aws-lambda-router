@@ -2,7 +2,7 @@
 
 describe('sns.processor', () => {
 
-    const sns = require('../lib/sns');
+    const sns = require('../dist/lib/sns').process;
 
     it('context should be pass through', () => {
         const actionSpy = jasmine.createSpy('action');

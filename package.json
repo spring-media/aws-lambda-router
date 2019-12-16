@@ -5,7 +5,8 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "jasmine  --random=true test/*.spec.js"
+    "test": "jest",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,11 @@
   },
   "homepage": "https://github.com/spring-media/aws-lambda-router#readme",
   "devDependencies": {
-    "jasmine": "3.4.0",
-    "proxyquire": "2.1.0"
+    "@types/aws-lambda": "^8.10.39",
+    "@types/jest": "^24.0.25",
+    "@types/node": "^8.10.59",
+    "jest": "24.9.0",
+    "ts-jest": "24.2.0",
+    "typescript": "3.7.4"
   }
 }

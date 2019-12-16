@@ -65,7 +65,7 @@ function createTwoEvents(eventName, bucketName, eventName2, bucketName2) {
     };
 }
 
-const s3 = require('../lib/s3');
+const s3 = require('../dist/lib/s3').process;
 describe('s3.processor', () => {
 
     const context = {bla: "blup"};

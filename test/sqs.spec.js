@@ -2,7 +2,7 @@
 
 describe('sqs.processor', () => {
 
-    const sqs = require('../lib/sqs');
+    const sqs = require('../dist/lib/sqs').process;
 
     it('context should be passed through', () => {
         const actionSpy = jasmine.createSpy('action');

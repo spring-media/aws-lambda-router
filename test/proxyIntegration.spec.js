@@ -13,7 +13,7 @@ function forEach(arrayOfArrays) {
     };
 }
 
-const proxyIntegration = require('../lib/proxyIntegration');
+const proxyIntegration = require('../dist/lib/proxyIntegration').process;
 const expectedCorsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,HEAD,PATCH",
@@ -226,14 +226,12 @@ describe('proxyIntegration.routeHandler', () => {
     it('should not change path if coming over localhost', () => {
         assertPathIsUnchanged("localhost");
     });
-    it('should return 400 for an invalid body', (done) => {
-        proxyIntegration({routes: [{}]}, {httpMethod: 'GET', path: '/', body: '{keinJson'}).then(result => {
-            expect(result).toEqual({
-                statusCode: 400,
-                body: JSON.stringify({"message":"body is not a valid JSON","error":"ParseError"}),
-                headers: jasmine.anything()
-            });
-            done();
+    it('should return 400 for an invalid body', () => {
+        const result = proxyIntegration({routes: [{}]}, {httpMethod: 'GET', path: '/', body: '{keinJson'})
+        expect(result).toEqual({
+            statusCode: 400,
+            body: JSON.stringify({"message":"body is not a valid JSON","error":"ParseError"}),
+            headers: jasmine.anything()
         });
     });
     it('should return error for no process found', (done) => {
