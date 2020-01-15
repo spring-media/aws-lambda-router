@@ -1,9 +1,10 @@
+# AWS Lambda Router [![Build Status](https://travis-ci.org/spring-media/aws-lambda-router.svg?branch=master)](https://travis-ci.org/spring-media/aws-lambda-router)
 
-[![Build Status](https://travis-ci.org/spring-media/aws-lambda-router.svg?branch=master)](https://travis-ci.org/spring-media/aws-lambda-router)
+[![codecov](https://codecov.io/gh/spring-media/aws-lambda-router/branch/master/graph/badge.svg)](https://codecov.io/gh/spring-media/aws-lambda-router)
 [![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router)
 [![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
 
-# AWS Lambda Router
+
 
 A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway),
 [Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html), [SNS](https://aws.amazon.com/sns) 
