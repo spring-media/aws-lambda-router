@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "lib": [
+      "es2017"
+    ],
+    "outDir": "./dist",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2017",
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strict": true
+  },
+  "exclude": [
+    "./test/**",
+    "./dist/**"
+  ]
+}

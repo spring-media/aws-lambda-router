@@ -1,6 +1,19 @@
-"use strict";
+import { SQSEvent, Context, SQSRecord } from "aws-lambda";
+import { ProcessMethod } from "./EventProcessor";
 
-function process(sqsConfig, event, context) {
+export type SqsEvent = SQSEvent
+
+export interface SqsRoute {
+  source: string | RegExp;
+  action: (messages: SQSRecord['body'][], context: Context) => Promise<any> | any;
+}
+
+export interface SqsConfig {
+  routes: SqsRoute[];
+  debug?: boolean;
+}
+
+export const process: ProcessMethod<SqsConfig, SqsEvent, Context, any>  = (sqsConfig, event, context) => {
     // detect if it's an sqs-event at all:
     if (sqsConfig.debug) {
         console.log('sqs:Event', JSON.stringify(event));
@@ -34,8 +47,6 @@ function process(sqsConfig, event, context) {
 
     return null;
 }
-
-module.exports = process;
 
 /*
 const cfgExample = {

@@ -36,10 +36,9 @@ $ yarn add aws-lambda-router
 This is a simple example of `aws-lambda-router` in conjunction with ANY method and the API Gateway proxy integration. The following code will respond with a message when executed using an AWS API Gateway with a `GET` request on URL path `<base-url-of-gateway>/gateway-mapping/article/123`.
 
 ```js
-const router = require('aws-lambda-router');
+import * as router from 'aws-lambda-router'
 
-// handler for an api gateway event
-exports.handler = router.handler({
+export const handler = router.handler({
     // for handling an http-call from an AWS API Gateway proxyIntegration we provide the following config:
     proxyIntegration: {
         routes: [
@@ -66,9 +65,9 @@ See the following example:
 
 
 ```js
-const router = require('aws-lambda-router');
+import * as router from 'aws-lambda-router'
 
-exports.handler = router.handler({
+export const handler = router.handler({
     // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
     proxyIntegration: {
         cors: true,
@@ -94,9 +93,9 @@ If CORS is activated, these default headers will be sent on every response:
 ## Errormapping
 
 ```js
-const router = require('aws-lambda-router');
+import * as router from 'aws-lambda-router'
 
-exports.handler = router.handler({
+export const handler = router.handler({
     // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
     proxyIntegration: {
         routes: [
@@ -135,9 +134,9 @@ SNS Event Structure: https://docs.aws.amazon.com/sns/latest/dg/sns-message-and-j
 For handling calls in Lambdas initiated from AWS-SNS you can use the following code snippet:
 
 ```js
-const router = require('aws-lambda-router');
+import * as router from 'aws-lambda-router'
 
-exports.handler = router.handler({
+export const handler = router.handler({
     sns: {
         routes: [
             {
@@ -156,9 +155,9 @@ exports.handler = router.handler({
 For handling calls in Lambdas initiated from AWS-SQS you can use the following code snippet:
 
 ```js
-const router = require('aws-lambda-router');
+import * as router from 'aws-lambda-router'
 
-exports.handler = router.handler({
+export const handler = router.handler({
     sqs: {
         routes: [
             {
@@ -200,9 +199,9 @@ The action method will be called with the records of the [S3Event Structure](htt
 The following examples demonstrates the most use cases:
 
 ```js
-const router = require('aws-lambda-router');
+import * as router from 'aws-lambda-router'
 
-exports.handler = router.handler({
+export const handler = router.handler({
     s3: {
         routes: [
             {
@@ -290,6 +289,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
+* 0.7.0 migrate to typescript; using aws-lambda typings; proxyIntegration: cors is now optional (default: false);
 * 0.6.2 take away old gulp dependency to run tests, works now with scripts in package.json; normalize request path to start from local host (thanks to [@napicella](https://github.com/napicella))
 * 0.6.1 s3: fix: aggregate result promises to one promise; fix: s3Route interface
 * 0.6.0 new feature: S3 routes available. 

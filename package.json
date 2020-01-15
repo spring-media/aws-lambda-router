@@ -1,11 +1,12 @@
 {
   "name": "aws-lambda-router",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "AWS lambda router",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jasmine  --random=true test/*.spec.js"
+    "test": "jest",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,8 @@
     "any",
     "sns",
     "router",
-    "routing"
+    "routing",
+    "s3"
   ],
   "author": "Christian Gohlke <christian.gohlke@spring-media.de> (https://www.welt.de)",
   "license": "Apache-2.0",
@@ -27,7 +29,11 @@
   },
   "homepage": "https://github.com/spring-media/aws-lambda-router#readme",
   "devDependencies": {
-    "jasmine": "3.4.0",
-    "proxyquire": "2.1.0"
+    "@types/aws-lambda": "^8.10.39",
+    "@types/jest": "^24.0.25",
+    "@types/node": "^8.10.59",
+    "jest": "24.9.0",
+    "ts-jest": "24.2.0",
+    "typescript": "3.7.4"
   }
 }
