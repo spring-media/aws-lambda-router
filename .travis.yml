@@ -1,9 +1,16 @@
 language: node_js
-
 node_js:
-  - 8
+- 8
 
 script:
-  - yarn test
-  - npx codecov -f ./coverage/coverage-final.json
-  - yarn build
+- yarn test
+- npx codecov -f ./coverage/coverage-final.json
+- yarn build
+deploy:
+  provider: npm
+  email: christian.gohlke@spring-media.de
+  api_key:
+    secure: m//7E79LoXSAXGaOILNOPTpflGsCqcEuk1oqEDsFN807N+kyORRdFzRCBbzRoi+S8bSQtXd8+CmYWX4B18SeK0V6eaog//o2jF2f1BOh8j4DdWfN41XMu7KUbOqZTslubEMIARP2Pgbyj1g9tdMyikPxGIYyq5aBWCqau/fsHpxpIBnrJ/fY8vXpuAW6mrtix82NCeJsD0zaLlBIfhaDsZd/iOh8ndFCKfNm2+CcaT3L4GVka/8ovm2KxNwVarzblKWnkS4spiC6kavWJ+/pHGB7UkVC4B2cizw/4jrEnvxEtdTSWCjfdUSsMm7fxyZQnLQa8pegIvTBtDCV4E5kuiTY4Vy3UbDYdYTQU/U5LRIYwHK0vFlEjWOn+rZlF/zgCW/D+EcK6pWy3xDnR96QhvC6ap1gisbsyVdfaVM7kxbj3GExgEeZGJoZxA7l5dmRv0Mkcb0ZgISbk8TBYRNZMRbc31DLnICxzFnK93cOKb3H2n0LgA6tiuMp4/vpAJotFEgkxuVeD4HdRqDGQzzyWGR9oowK7IqnxhORS2rtOqyOs7L6WGF51FUbbKbAzJ5qKRWiUAAJRqgg/H0d1DBy1D/t38VjSRpl5znvnagI+1mpLXK6SkBSZ2v8YQ+wn5axJtj8zThfc6go7wK178URdnePtvpL/yCkYwMENNUKtQA=
+  on:
+    tags: true
+    repo: spring-media/aws-lambda-router
