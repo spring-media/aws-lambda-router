@@ -1,14 +1,11 @@
+
 # AWS Lambda Router [![Build Status](https://travis-ci.org/spring-media/aws-lambda-router.svg?branch=master)](https://travis-ci.org/spring-media/aws-lambda-router)
 
-[![codecov](https://codecov.io/gh/spring-media/aws-lambda-router/branch/master/graph/badge.svg)](https://codecov.io/gh/spring-media/aws-lambda-router)
-[![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router)
-[![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
+[![codecov](https://codecov.io/gh/spring-media/aws-lambda-router/branch/master/graph/badge.svg)](https://codecov.io/gh/spring-media/aws-lambda-router) [![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router) [![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
 
 
 
-A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway),
-[Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html), [SNS](https://aws.amazon.com/sns) 
-and [S3 Events](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html). 
+A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providing routing for [API Gateway](https://aws.amazon.com/api-gateway), [Proxy Integrations](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html), [SNS](https://aws.amazon.com/sns)  and [S3 Events](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html). 
 
 ## Features
 
@@ -17,7 +14,11 @@ and [S3 Events](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-con
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
 * No external dependencies
-* Currently there are four `processors` (callers for Lambda) implemented: API Gateway ANY method (called proxyIntegration), SNS, SQS and S3. 
+* Currently there are four `processors` (callers for Lambda) implemented: 
+    * API Gateway ANY method (called proxyIntegration)
+    * SNS
+    * SQS  
+    * S3
 
 ## Installation
 
@@ -34,13 +35,12 @@ $ yarn add aws-lambda-router
 
 ## Getting Started
 
-This is a simple example of `aws-lambda-router` in conjunction with ANY method and the API Gateway proxy integration. The following code will respond with a message when executed using an AWS API Gateway with a `GET` request on URL path `<base-url-of-gateway>/gateway-mapping/article/123`.
+This is a simple example of `aws-lambda-router` in conjunction with ANY method and the API Gateway proxy integration. The following code will respond with a message when executed using an AWS API Gateway with a `GET` request on URL path `<base-url-of-gateway>/gateway-mapping/article/123`. The corresponding AWS API Gateway Resource is `/article/{articleId}`.
 
 ```js
-import * as router from 'aws-lambda-router'
+import * as router from 'aws-lambda-router'
 
 export const handler = router.handler({
-    // for handling an http-call from an AWS API Gateway proxyIntegration we provide the following config:
     proxyIntegration: {
         routes: [
             {
@@ -57,6 +57,45 @@ export const handler = router.handler({
 }
 ```
 
+## Proxy path support (work in progress)
+
+The proxy integration usually works using a path configured in the API gateway. For example: `/article/{id}`.
+
+If you use the WIP *proxy path support*, the complete path will be used to match a route config in `proxyIntegration`. This can be used to build an [Simple Proxy with API Gateway]([https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-http.html](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-http.html))
+
+Example:
+* Resource in API Gateway : /{proxy+}
+* Method: ANY
+
+With the lambda configuration shown below the following paths are matched:
+*  _api-gateway-host_/article/list
+*  _api-gateway-host_/api/json/v1/schema
+
+```js
+const router = require('aws-lambda-router');
+
+exports.handler = router.handler({
+    proxyIntegration: {
+        proxyPath: proxy
+        routes: [
+            {
+                path: '/article/list',
+                method: 'GET',
+                action: (request, context) => {
+                    return "You called me with: " + request.path;
+                }
+            },
+            {
+                path: '/api/json/v1/schema',
+                method: 'GET',
+                action: (request, context) => {
+                    return "You called me with: " + request.path;
+                }
+            }
+        ]
+    }
+}
+```
 
 ## Enable CORS 
 
@@ -66,7 +105,7 @@ See the following example:
 
 
 ```js
-import * as router from 'aws-lambda-router'
+import * as router from 'aws-lambda-router'
 
 export const handler = router.handler({
     // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
@@ -91,10 +130,10 @@ If CORS is activated, these default headers will be sent on every response:
     "Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
 
 
-## Errormapping
+## Error mapping
 
 ```js
-import * as router from 'aws-lambda-router'
+import * as router from 'aws-lambda-router'
 
 export const handler = router.handler({
     // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
@@ -135,7 +174,7 @@ SNS Event Structure: https://docs.aws.amazon.com/sns/latest/dg/sns-message-and-j
 For handling calls in Lambdas initiated from AWS-SNS you can use the following code snippet:
 
 ```js
-import * as router from 'aws-lambda-router'
+import * as router from 'aws-lambda-router'
 
 export const handler = router.handler({
     sns: {
@@ -156,7 +195,7 @@ export const handler = router.handler({
 For handling calls in Lambdas initiated from AWS-SQS you can use the following code snippet:
 
 ```js
-import * as router from 'aws-lambda-router'
+import * as router from 'aws-lambda-router'
 
 export const handler = router.handler({
     sqs: {
@@ -200,7 +239,7 @@ The action method will be called with the records of the [S3Event Structure](htt
 The following examples demonstrates the most use cases:
 
 ```js
-import * as router from 'aws-lambda-router'
+import * as router from 'aws-lambda-router'
 
 export const handler = router.handler({
     s3: {
@@ -290,16 +329,37 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
-* 0.7.0 migrate to typescript; using aws-lambda typings; proxyIntegration: cors is now optional (default: false);
-* 0.6.2 take away old gulp dependency to run tests, works now with scripts in package.json; normalize request path to start from local host (thanks to [@napicella](https://github.com/napicella))
-* 0.6.1 s3: fix: aggregate result promises to one promise; fix: s3Route interface
-* 0.6.0 new feature: S3 routes available. 
-* 0.5.0 new feature: SQS route integration now available; bugfix: SNS integration now works with Array of message instead of single message
-* 0.4.0 now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
-* 0.3.1 proxyIntegration: avoid error if response object is not set; add some debug logging
-* 0.3.0 proxyIntegration: add PATCH method; allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
-* 0.2.2 proxyIntegration: set correct header values now for CORS
-* 0.2.1 proxyIntegration: CORS in Preflight, status code 400 for invalid body, set more CORS headers as default
-* 0.2.0 Attention: breaking changes for configuration; add SNS event process
-* 0.1.0 make it work now
-* 0.0.1 initial release
+* 0.7.0 
+   * migrate to typescript
+   * using aws-lambda typings
+   * proxyIntegration: cors is now optional (default: false)
+   * experimental _proxy path support_ (thanks to [@swaner](https://github.com/swaner))
+* 0.6.2 
+  * take away old gulp dependency to run tests, works now with scripts in package.json
+  * normalize request path to start from local host (thanks to [@napicella](https://github.com/napicella))
+* 0.6.1 
+  * s3: fix: aggregate result promises to one promise; 
+  * s3: s3Route interface
+* 0.6.0 
+  * new feature: S3 routes available. 
+* 0.5.0 
+  * new feature: SQS route integration now available; 
+  * bugfix: SNS integration now works with Array of message instead of single message
+* 0.4.0 
+  * now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
+* 0.3.1 proxyIntegration: 
+  * avoid error if response object is not set; 
+  * add some debug logging
+* 0.3.0 
+  * proxyIntegration: add PATCH method; 
+  * allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
+* 0.2.2 
+  * proxyIntegration: set correct header values now for CORS
+* 0.2.1 
+  * proxyIntegration: CORS in Preflight, status code 400 for invalid body, set more CORS headers as default
+* 0.2.0 *Attention*: breaking changes for configuration; 
+  * add SNS event process
+* 0.1.0 
+  * make it work now
+* 0.0.1
+  *  initial release

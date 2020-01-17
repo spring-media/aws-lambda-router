@@ -1,4 +1,6 @@
 // helper for parameterized tests (http://blog.piotrturski.net/2015/04/jasmine-parameterized-tests.html)
+import {log} from "util";
+
 function forEach(arrayOfArrays: any) {
   return {
     it: (description: string, testCaseFunction: (...args: any[]) => void | Promise<void>) => {
@@ -377,6 +379,69 @@ describe('proxyIntegration.routeHandler', () => {
       body: '{"message":{"reason":"oops"},"error":666}',
       headers: expectedCorsHeaders
     })
+  })
+})
+
+describe('proxyIntegration.proxyPath', () => {
+
+  it('single proxy path', async () => {
+    const spiedAction = jasmine.createSpy('action').and.returnValue({ })
+    const routeConfig: ProxyIntegrationConfig = {
+      proxyPath: 'apiPath',
+      routes: [
+        {
+          method: 'GET',
+          path: '/article/list',
+          action: spiedAction
+        }
+      ]
+    }
+
+    const result = await proxyIntegration(routeConfig, { resource: "/{apiPath+}",
+                        path: "/article/list",
+                        pathParameters: { apiPath: "/article/list" },
+                        httpMethod: 'GET' } as any, context)
+
+    expect(spiedAction).toHaveBeenCalledWith({ resource: "/{apiPath+}", paths: {}, path: "/article/list", httpMethod: 'GET', pathParameters: { apiPath: "/article/list" } }, context)
+    expect(result).toEqual({
+      statusCode: 200,
+      body: '{}',
+      headers: Object.assign({ "Content-Type": "application/json" })
+    })
+
+  })
+
+  it('multiple proxy path', async () => {
+    const articleAction = jasmine.createSpy('action').and.returnValue({ })
+    const sectionAction = jasmine.createSpy('action').and.returnValue({ })
+    const routeConfig: ProxyIntegrationConfig = {
+      proxyPath: 'apiPath',
+      routes: [
+        {
+          method: 'GET',
+          path: '/article/list',
+          action: articleAction
+        },
+        {
+          method: 'GET',
+          path: '/section/list',
+          action: sectionAction
+        }
+      ]
+    }
+    await proxyIntegration(routeConfig, { resource: "/{apiPath+}",
+      path: "/article/list",
+      pathParameters: { apiPath: "/article/list" },
+      httpMethod: 'GET' } as any, context)
+    expect(articleAction).toHaveBeenCalledWith({ resource: "/{apiPath+}", paths: {}, path: "/article/list", httpMethod: 'GET', pathParameters: { apiPath: "/article/list" } }, context)
+    expect(sectionAction).not.toHaveBeenCalled()
+
+    await proxyIntegration(routeConfig, { resource: "/{apiPath+}",
+      path: "/section/list",
+      pathParameters: { apiPath: "/section/list" },
+      httpMethod: 'GET' } as any, context)
+    expect(sectionAction).toHaveBeenCalledWith({ resource: "/{apiPath+}", paths: {}, path: "/section/list", httpMethod: 'GET', pathParameters: { apiPath: "/section/list" } }, context)
+
   })
 })
 
