@@ -52,16 +52,14 @@ const addCorsHeaders = (toAdd: APIGatewayProxyResult['headers'] = {}) => {
 }
 
 const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 'action'>, event: ProxyIntegrationEventWithParams,
-                                      context: APIGatewayEventRequestContext, headers: APIGatewayProxyResult['headers']) => {
+  context: APIGatewayEventRequestContext, headers: APIGatewayProxyResult['headers']) => {
 
   const res = await actionConfig.action(event, context)
-  if (!res || !res.body) {
-    const consolidateBody = res && JSON.stringify(res) || '{}'
-
+  if (!res || typeof res !== 'object' || typeof res.body !== 'string') {
     return {
       statusCode: 200,
       headers,
-      body: consolidateBody
+      body: JSON.stringify(res) || '{}'
     }
   }
 
@@ -112,10 +110,11 @@ export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEven
     errorMapping['NO_MATCHING_ACTION'] = 404
 
     if (proxyIntegrationConfig.proxyPath) {
-      console.log('proxy path is set: ' + proxyIntegrationConfig.proxyPath)
       event.path = (event.pathParameters || {})[proxyIntegrationConfig.proxyPath]
-      console.log('proxy path with event path: ' + event.path)
-
+      if (proxyIntegrationConfig.debug) {
+        console.log('proxy path is set: ' + proxyIntegrationConfig.proxyPath)
+        console.log('proxy path with event path: ' + event.path)
+      }
     } else {
       event.path = normalizeRequestPath(event)
     }
@@ -154,12 +153,12 @@ const normalizeRequestPath = (event: APIGatewayProxyEvent): string => {
     return event.path
   }
 
-  // ugly hack: if host is from API-Gateway 'Custom Domain Name Mapping', then event.path has the value '/basepath/resource-path/';
+  // ugly hack: if host is from API-Gateway 'Custom Domain Name Mapping', then event.path has the value '/basepath/resource-path/'
   // if host is from amazonaws.com, then event.path is just '/resource-path':
   const apiId = event.requestContext ? event.requestContext.apiId : null // the apiId that is the first part of the amazonaws.com-host
   if ((apiId && event.headers && event.headers.Host && event.headers.Host.substring(0, apiId.length) !== apiId)) {
     // remove first path element:
-    const groups: any = /\/[^\/]+(.*)/.exec(event.path) || [null, null]
+    const groups = /\/[^\/]+(.*)/.exec(event.path) || [null, null]
     return groups[1] || '/'
   }
 
@@ -189,12 +188,11 @@ const convertError = (error: ProxyIntegrationError | Error, errorMapping?: Proxy
       body: JSON.stringify({ error: 'ServerError', message: `Generic error:${JSON.stringify(error)}` }),
       headers: addCorsHeaders({})
     }
-  } catch (stringifyError) {
-  }
+  } catch (stringifyError) { }
 
   return {
     statusCode: 500,
-    body: JSON.stringify({ error: 'ServerError', message: `Generic error` })
+    body: JSON.stringify({ error: 'ServerError', message: 'Generic error' })
   }
 }
 
