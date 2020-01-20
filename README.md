@@ -51,10 +51,19 @@ export const handler = router.handler({
                 action: (request, context) => {
                     return "You called me with: " + request.paths.id;
                 }
+            },
+            {
+                // request-path-pattern with a path variable in Open API style:
+                path: '/section/{id}',
+                method: 'GET',
+                // we can use the path param 'id' in the action call:
+                action: (request, context) => {
+                    return "You called me with: " + request.paths.id;
+                }
             }
         ]
     }
-}
+})
 ```
 
 ## Proxy path support (work in progress)
@@ -76,7 +85,7 @@ const router = require('aws-lambda-router');
 
 exports.handler = router.handler({
     proxyIntegration: {
-        proxyPath: proxy
+        proxyPath: proxy,
         routes: [
             {
                 path: '/article/list',
@@ -94,7 +103,7 @@ exports.handler = router.handler({
             }
         ]
     }
-}
+})
 ```
 
 ## Enable CORS 
@@ -120,7 +129,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```  
 
 If CORS is activated, these default headers will be sent on every response:  
@@ -152,7 +161,7 @@ export const handler = router.handler({
             'ServerError': 500
         }
     }
-});
+})
 
 function doThrowAnException(body) {
     throw {reason: 'MyCustomError', message: 'Throw an error for this example'}
@@ -187,7 +196,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```
 
 ## SQS to Lambda Integrations
@@ -214,7 +223,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```
 
 An SQS message always contains an array of records. In each SQS record there is the message in the body JSON key. 
@@ -291,7 +300,7 @@ export const handler = router.handler({
         ],
         debug: true
     }
-});
+})
 ```
 
 Per s3 event there can be several records per event. The action methods are called one after the other record. The result of the action method is an array with objects insides.
@@ -317,7 +326,7 @@ return {
         body: JSON.stringify({
             foo: 'bar'
         })
-    };
+    }
 ```
 
 ## Local developement
@@ -329,6 +338,8 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
+* 0.7.1
+   * added support for Open API parameter definitions e.g.: /section/{id}
 * 0.7.0 
    * migrate to typescript
    * using aws-lambda typings
