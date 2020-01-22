@@ -61,10 +61,10 @@ export const handler = router.handler({
 
 The proxy integration usually works using a path configured in the API gateway. For example: `/article/{id}`.
 
-If you use the WIP *proxy path support*, the complete path will be used to match a route config in `proxyIntegration`. This can be used to build an [Simple Proxy with API Gateway]([https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-http.html](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-http.html))
+If you use the WIP *proxy path support*, the complete path will be used to match a route config in `proxyIntegration`. This can be used to build an [Simple Proxy with API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-http.html)
 
 Example:
-* Resource in API Gateway : /{proxy+}
+* Resource in API Gateway : /{proxy+} [see Proxy Integration with a Proxy Resource](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html)
 * Method: ANY
 
 With the lambda configuration shown below the following paths are matched:
@@ -329,6 +329,9 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
+* 0.7.1 
+   * code style cleanup
+   * fix: hosted package on npmjs should now worked
 * 0.7.0 
    * migrate to typescript
    * using aws-lambda typings
