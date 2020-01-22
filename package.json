@@ -22,6 +22,9 @@
     "routing",
     "s3"
   ],
+  "files": [
+    "dist/**/*"
+  ],
   "author": "Christian Gohlke <christian.gohlke@spring-media.de> (https://www.welt.de)",
   "license": "Apache-2.0",
   "bugs": {
