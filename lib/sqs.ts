@@ -1,11 +1,11 @@
-import { SQSEvent, Context, SQSRecord } from "aws-lambda";
-import { ProcessMethod } from "./EventProcessor";
+import { Context, SQSEvent, SQSRecord } from 'aws-lambda'
+import { ProcessMethod } from './EventProcessor'
 
 export type SqsEvent = SQSEvent
 
 export interface SqsRoute {
-  source: string | RegExp;
-  action: (messages: SQSRecord['body'][], context: Context) => Promise<any> | any;
+  source: string | RegExp
+  action: (messages: SQSRecord['body'][], context: Context) => Promise<any> | any
 }
 
 export interface SqsConfig {
@@ -13,39 +13,39 @@ export interface SqsConfig {
   debug?: boolean;
 }
 
-export const process: ProcessMethod<SqsConfig, SqsEvent, Context, any>  = (sqsConfig, event, context) => {
-    // detect if it's an sqs-event at all:
-    if (sqsConfig.debug) {
-        console.log('sqs:Event', JSON.stringify(event));
-        console.log('sqs:context', context);
-    }
+export const process: ProcessMethod<SqsConfig, SqsEvent, Context, any> = (sqsConfig, event, context) => {
+  // detect if it's an sqs-event at all:
+  if (sqsConfig.debug) {
+    console.log('sqs:Event', JSON.stringify(event))
+    console.log('sqs:context', context)
+  }
 
-    if (!Array.isArray(event.Records) || event.Records.length < 1 || event.Records[0].eventSource !== 'aws:sqs') {
-        console.log('Event does not look like SQS');
-        return null;
-    }
+  if (!Array.isArray(event.Records) || event.Records.length < 1 || event.Records[0].eventSource !== 'aws:sqs') {
+    console.log('Event does not look like SQS')
+    return null
+  }
 
-    const records = event.Records;
-    const recordSourceArn = records[0].eventSourceARN;
-    for (let routeConfig of sqsConfig.routes) {
-        if (routeConfig.source instanceof RegExp) {
-            if (routeConfig.source.test(recordSourceArn)) {
-                const result = routeConfig.action(records.map(record => record.body) , context);
-                return result || {};
-            }
-        } else {
-            if (routeConfig.source === recordSourceArn) {
-                const result = routeConfig.action(records.map(record => record.body) , context);
-                return result || {};
-            }
-        }
+  const records = event.Records
+  const recordSourceArn = records[0].eventSourceARN
+  for (let routeConfig of sqsConfig.routes) {
+    if (routeConfig.source instanceof RegExp) {
+      if (routeConfig.source.test(recordSourceArn)) {
+        const result = routeConfig.action(records.map(record => record.body), context)
+        return result || {}
+      }
+    } else {
+      if (routeConfig.source === recordSourceArn) {
+        const result = routeConfig.action(records.map(record => record.body), context)
+        return result || {}
+      }
     }
+  }
 
-    if (sqsConfig.debug) {
-        console.log(`No source-match for ${recordSourceArn}`);
-    }
+  if (sqsConfig.debug) {
+    console.log(`No source-match for ${recordSourceArn}`)
+  }
 
-    return null;
+  return null
 }
 
 /*

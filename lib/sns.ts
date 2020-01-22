@@ -1,11 +1,11 @@
-import { SNSEvent, Context, SNSMessage } from "aws-lambda";
-import { ProcessMethod } from "./EventProcessor";
+import { Context, SNSEvent, SNSMessage } from 'aws-lambda'
+import { ProcessMethod } from './EventProcessor'
 
 export type SnsEvent = SNSEvent
 
 export interface SnsRoute {
-  subject: RegExp;
-  action: (sns: SNSMessage, context: Context) => Promise<any> | any;
+  subject: RegExp
+  action: (sns: SNSMessage, context: Context) => Promise<any> | any
 }
 
 export interface SnsConfig {
@@ -16,32 +16,32 @@ export interface SnsConfig {
 export const process: ProcessMethod<SnsConfig, SnsEvent, Context, any> = (snsConfig, event, context) => {
   // detect if it's an sns-event at all:
   if (snsConfig.debug) {
-      console.log('sns:Event', JSON.stringify(event));
-      console.log('sns:context', context);
+    console.log('sns:Event', JSON.stringify(event))
+    console.log('sns:context', context)
   }
 
-  if (!Array.isArray(event.Records) || event.Records.length<1 || !event.Records[0].Sns) {
-      console.log('Event does not look like SNS');
-      return null;
+  if (!Array.isArray(event.Records) || event.Records.length < 1 || !event.Records[0].Sns) {
+    console.log('Event does not look like SNS')
+    return null
   }
 
-  const sns = event.Records[0].Sns;
+  const sns = event.Records[0].Sns
   for (let routeConfig of snsConfig.routes) {
-      if (routeConfig.subject instanceof RegExp) {
-          if (routeConfig.subject.test(sns.Subject)) {
-              const result = routeConfig.action(sns, context);
-              return result || {};
-          }
-      } else {
-          console.log(`SNS-Route with subject-regex '${routeConfig.subject}' is not a Regex; it is ignored!`);
+    if (routeConfig.subject instanceof RegExp) {
+      if (routeConfig.subject.test(sns.Subject)) {
+        const result = routeConfig.action(sns, context)
+        return result || {}
       }
+    } else {
+      console.log(`SNS-Route with subject-regex '${routeConfig.subject}' is not a Regex; it is ignored!`)
+    }
   }
 
   if (snsConfig.debug) {
-      console.log(`No subject-match for ${sns.Subject}`);
+    console.log(`No subject-match for ${sns.Subject}`)
   }
 
-  return null;
+  return null
 }
 
 /*

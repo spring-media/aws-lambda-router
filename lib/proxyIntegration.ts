@@ -1,5 +1,5 @@
-import { APIGatewayProxyEvent, APIGatewayEventRequestContext, APIGatewayProxyResult } from "aws-lambda";
-import { ProcessMethod } from "./EventProcessor";
+import { APIGatewayEventRequestContext, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { ProcessMethod } from './EventProcessor'
 
 export type ProxyIntegrationEvent = APIGatewayProxyEvent
 type ProxyIntegrationParams = {
@@ -8,12 +8,12 @@ type ProxyIntegrationParams = {
 export type ProxyIntegrationEventWithParams = APIGatewayProxyEvent & ProxyIntegrationParams
 
 export interface ProxyIntegrationRoute {
-  path: string;
-  method: string;
+  path: string
+  method: string
   action: (
     request: ProxyIntegrationEventWithParams,
     context: APIGatewayEventRequestContext
-  ) => APIGatewayProxyResult | Promise<APIGatewayProxyResult>;
+  ) => APIGatewayProxyResult | Promise<APIGatewayProxyResult>
 }
 
 export type ProxyIntegrationErrorMapping = {
@@ -29,12 +29,12 @@ export type ProxyIntegrationError = {
 }
 
 export interface ProxyIntegrationConfig {
-  cors?: boolean;
-  routes: ProxyIntegrationRoute[];
-  debug?: boolean;
-  errorMapping?: ProxyIntegrationErrorMapping;
-  defaultHeaders?: APIGatewayProxyResult['headers'];
-  proxyPath?: string;
+  cors?: boolean
+  routes: ProxyIntegrationRoute[]
+  debug?: boolean
+  errorMapping?: ProxyIntegrationErrorMapping
+  defaultHeaders?: APIGatewayProxyResult['headers']
+  proxyPath?: string
 }
 
 const NO_MATCHING_ACTION = (request: APIGatewayProxyEvent) => {
@@ -42,27 +42,27 @@ const NO_MATCHING_ACTION = (request: APIGatewayProxyEvent) => {
     reason: 'NO_MATCHING_ACTION',
     message: `Could not find matching action for ${request.path} and method ${request.httpMethod}`
   }
-};
+}
 
 const addCorsHeaders = (toAdd: APIGatewayProxyResult['headers'] = {}) => {
-  toAdd["Access-Control-Allow-Origin"] = "*";
-  toAdd["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,HEAD,PATCH";
-  toAdd["Access-Control-Allow-Headers"] = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token";
-  return toAdd;
+  toAdd['Access-Control-Allow-Origin'] = '*'
+  toAdd['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,HEAD,PATCH'
+  toAdd['Access-Control-Allow-Headers'] = 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
+  return toAdd
 }
 
 const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 'action'>, event: ProxyIntegrationEventWithParams,
-  context: APIGatewayEventRequestContext, headers: APIGatewayProxyResult['headers']) => {
+                                      context: APIGatewayEventRequestContext, headers: APIGatewayProxyResult['headers']) => {
 
   const res = await actionConfig.action(event, context)
   if (!res || !res.body) {
-    const consolidateBody = res && JSON.stringify(res) || '{}';
+    const consolidateBody = res && JSON.stringify(res) || '{}'
 
     return {
       statusCode: 200,
       headers,
       body: consolidateBody
-    };
+    }
   }
 
   return {
@@ -79,91 +79,91 @@ export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEven
   (proxyIntegrationConfig, event, context) => {
 
     if (proxyIntegrationConfig.debug) {
-      console.log("Lambda proxyIntegrationConfig: ", proxyIntegrationConfig);
-      console.log("Lambda event: ", event);
-      console.log("Lambda context: ", context);
+      console.log('Lambda proxyIntegrationConfig: ', proxyIntegrationConfig)
+      console.log('Lambda event: ', event)
+      console.log('Lambda context: ', context)
     }
 
     //validate config
     if (!Array.isArray(proxyIntegrationConfig.routes) || proxyIntegrationConfig.routes.length < 1) {
-      throw new Error('proxyIntegration.routes must not be empty');
+      throw new Error('proxyIntegration.routes must not be empty')
     }
 
     // detect if it's an http-call at all:
     if (!event.httpMethod || !event.path) {
-      return null;
+      return null
     }
 
-    const headers: APIGatewayProxyResult['headers'] = {};
+    const headers: APIGatewayProxyResult['headers'] = {}
     if (proxyIntegrationConfig.cors) {
-      addCorsHeaders(headers);
+      addCorsHeaders(headers)
       if (event.httpMethod === 'OPTIONS') {
         return Promise.resolve({
           statusCode: 200,
           headers,
           body: ''
-        });
+        })
       }
     }
     Object.assign(headers, { 'Content-Type': 'application/json' }, proxyIntegrationConfig.defaultHeaders)
 
     // assure necessary values have sane defaults:
-    const errorMapping = proxyIntegrationConfig.errorMapping || {};
-    errorMapping['NO_MATCHING_ACTION'] = 404;
+    const errorMapping = proxyIntegrationConfig.errorMapping || {}
+    errorMapping['NO_MATCHING_ACTION'] = 404
 
     if (proxyIntegrationConfig.proxyPath) {
-      console.log("proxy path is set: " + proxyIntegrationConfig.proxyPath)
-      event.path = (event.pathParameters || {})[proxyIntegrationConfig.proxyPath];
-      console.log("proxy path with event path: " + event.path)
+      console.log('proxy path is set: ' + proxyIntegrationConfig.proxyPath)
+      event.path = (event.pathParameters || {})[proxyIntegrationConfig.proxyPath]
+      console.log('proxy path with event path: ' + event.path)
 
     } else {
-      event.path = normalizeRequestPath(event);
+      event.path = normalizeRequestPath(event)
     }
 
     try {
       const actionConfig = findMatchingActionConfig(event.httpMethod, event.path, proxyIntegrationConfig) || {
         action: NO_MATCHING_ACTION,
         paths: undefined
-      };
+      }
 
-      event.paths = actionConfig.paths;
+      event.paths = actionConfig.paths
       if (event.body) {
         try {
-          event.body = JSON.parse(event.body);
+          event.body = JSON.parse(event.body)
         } catch (parseError) {
-          console.log(`Could not parse body as json: ${event.body}`, parseError);
+          console.log(`Could not parse body as json: ${event.body}`, parseError)
           return {
             statusCode: 400,
             headers,
-            body: JSON.stringify({ message: "body is not a valid JSON", error: "ParseError" })
+            body: JSON.stringify({ message: 'body is not a valid JSON', error: 'ParseError' })
           }
         }
       }
       return processActionAndReturn(actionConfig, event, context, headers).catch(error => {
         console.log('Error while handling action function.', error)
-        return convertError(error, errorMapping, headers);
+        return convertError(error, errorMapping, headers)
       })
     } catch (error) {
-      console.log('Error while evaluating matching action handler', error);
-      return convertError(error, errorMapping, headers);
+      console.log('Error while evaluating matching action handler', error)
+      return convertError(error, errorMapping, headers)
     }
   }
 
 const normalizeRequestPath = (event: APIGatewayProxyEvent): string => {
   if (isLocalExecution(event)) {
-    return event.path;
+    return event.path
   }
 
   // ugly hack: if host is from API-Gateway 'Custom Domain Name Mapping', then event.path has the value '/basepath/resource-path/';
   // if host is from amazonaws.com, then event.path is just '/resource-path':
-  const apiId = event.requestContext ? event.requestContext.apiId : null; // the apiId that is the first part of the amazonaws.com-host
+  const apiId = event.requestContext ? event.requestContext.apiId : null // the apiId that is the first part of the amazonaws.com-host
   if ((apiId && event.headers && event.headers.Host && event.headers.Host.substring(0, apiId.length) !== apiId)) {
     // remove first path element:
-    const groups = /\/[^\/]+(.*)/.exec(event.path) || [null, null];
-    return groups[1] || '/';
+    const groups: any = /\/[^\/]+(.*)/.exec(event.path) || [null, null]
+    return groups[1] || '/'
   }
 
-  return event.path;
+  return event.path
 }
 
 const hasReason = (error: any): error is { reason: string } => typeof error.reason === 'string'
@@ -175,73 +175,74 @@ const convertError = (error: ProxyIntegrationError | Error, errorMapping?: Proxy
       statusCode: errorMapping[error.reason],
       body: JSON.stringify({ message: error.message, error: error.reason }),
       headers
-    };
+    }
   } else if (hasStatus(error)) {
     return {
       statusCode: error.status,
       body: JSON.stringify({ message: error.message, error: error.status }),
       headers: addCorsHeaders({})
-    };
+    }
   }
   try {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "ServerError", message: `Generic error:${JSON.stringify(error)}` }),
+      body: JSON.stringify({ error: 'ServerError', message: `Generic error:${JSON.stringify(error)}` }),
       headers: addCorsHeaders({})
-    };
-  } catch (stringifyError) { }
+    }
+  } catch (stringifyError) {
+  }
 
   return {
     statusCode: 500,
-    body: JSON.stringify({ error: "ServerError", message: `Generic error` })
-  };
+    body: JSON.stringify({ error: 'ServerError', message: `Generic error` })
+  }
 }
 
 const findMatchingActionConfig = (httpMethod: string, httpPath: string, routeConfig: ProxyIntegrationConfig):
   Pick<ProxyIntegrationRoute, 'action'> & ProxyIntegrationParams | null => {
 
-  const paths: ProxyIntegrationParams['paths'] = {};
-  const matchingMethodRoutes = routeConfig.routes.filter(route => route.method === httpMethod);
+  const paths: ProxyIntegrationParams['paths'] = {}
+  const matchingMethodRoutes = routeConfig.routes.filter(route => route.method === httpMethod)
   for (let route of matchingMethodRoutes) {
     if (routeConfig.debug) {
-      console.log(`Examining route ${route.path} to match ${httpPath}`);
+      console.log(`Examining route ${route.path} to match ${httpPath}`)
     }
-    const pathPartNames = extractPathNames(route.path);
-    const pathValues = extractPathValues(route.path, httpPath);
+    const pathPartNames = extractPathNames(route.path)
+    const pathValues = extractPathValues(route.path, httpPath)
     if (pathValues && pathPartNames) {
       for (let ii = 0; ii < pathValues.length; ii++) {
-        paths[pathPartNames[ii]] = decodeURIComponent(pathValues[ii]);
+        paths[pathPartNames[ii]] = decodeURIComponent(pathValues[ii])
       }
       if (routeConfig.debug) {
-        console.log(`Found matching route ${route.path} with paths`, paths);
+        console.log(`Found matching route ${route.path} with paths`, paths)
       }
       return {
         action: route.action,
         paths: paths
-      };
+      }
     }
   }
   if (routeConfig.debug) {
-    console.log(`No match for ${httpPath}`);
+    console.log(`No match for ${httpPath}`)
   }
 
-  return null;
+  return null
 }
 
 const extractPathValues = (pathExpression: string, httpPath: string) => {
-  const pathValueRegex = new RegExp('^' + pathExpression.replace(/:[\w]+/g, "([^/]+)") + '$');
-  const pathValues = pathValueRegex.exec(httpPath);
-  return pathValues && pathValues.length > 0 ? pathValues.slice(1) : null;
+  const pathValueRegex = new RegExp('^' + pathExpression.replace(/:[\w]+/g, '([^/]+)') + '$')
+  const pathValues = pathValueRegex.exec(httpPath)
+  return pathValues && pathValues.length > 0 ? pathValues.slice(1) : null
 }
 
 const extractPathNames = (pathExpression: string) => {
-  const pathNameRegex = new RegExp('^' + pathExpression.replace(/:[\w.]+/g, ":([\\w]+)") + '$');
-  const pathNames = pathNameRegex.exec(pathExpression);
-  return pathNames && pathNames.length > 0 ? pathNames.slice(1) : null;
+  const pathNameRegex = new RegExp('^' + pathExpression.replace(/:[\w.]+/g, ':([\\w]+)') + '$')
+  const pathNames = pathNameRegex.exec(pathExpression)
+  return pathNames && pathNames.length > 0 ? pathNames.slice(1) : null
 }
 
 const isLocalExecution = (event: ProxyIntegrationEvent) => {
   return event.headers
     && event.headers.Host
-    && (event.headers.Host.startsWith('localhost') || event.headers.Host.startsWith('127.0.0.1'));
+    && (event.headers.Host.startsWith('localhost') || event.headers.Host.startsWith('127.0.0.1'))
 }

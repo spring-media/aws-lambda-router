@@ -1,7 +1,8 @@
 // helper for parameterized tests (http://blog.piotrturski.net/2015/04/jasmine-parameterized-tests.html)
-import {log} from "util";
+import { process as proxyIntegration, ProxyIntegrationConfig } from '../lib/proxyIntegration'
+import { APIGatewayProxyEvent } from 'aws-lambda'
 
-function forEach(arrayOfArrays: any) {
+function forEach (arrayOfArrays: any) {
   return {
     it: (description: string, testCaseFunction: (...args: any[]) => void | Promise<void>) => {
       arrayOfArrays.forEach((innerArray: any) => {
@@ -14,13 +15,10 @@ function forEach(arrayOfArrays: any) {
   }
 }
 
-import { process as proxyIntegration, ProxyIntegrationConfig } from '../lib/proxyIntegration'
-import { APIGatewayProxyEvent } from 'aws-lambda'
-
 const expectedCorsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,HEAD,PATCH",
-  "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,HEAD,PATCH',
+  'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
 }
 
 const context = {} as any
@@ -136,7 +134,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
 
     expect(result).toEqual({
       statusCode: 200,
-      headers: Object.assign({ "Content-Type": "application/json" }, expectedCorsHeaders),
+      headers: Object.assign({ 'Content-Type': 'application/json' }, expectedCorsHeaders),
       body: '"/"'
     })
   })
@@ -147,13 +145,13 @@ describe('proxyIntegration.routeHandler', () => {
     const actionSpy = jasmine.createSpy('action')
     const event = {
       httpMethod: 'GET',
-      path: "/shortcut-itemsdev",
-      headers: { Host: "api.ep.welt.de" },
+      path: '/shortcut-itemsdev',
+      headers: { Host: 'api.ep.welt.de' },
       requestContext: { apiId: 'blabla' }
     }
     const context = {
-      awsRequestId: "ab-dc",
-      functionName: "name"
+      awsRequestId: 'ab-dc',
+      functionName: 'name'
     }
 
     proxyIntegration({
@@ -165,15 +163,15 @@ describe('proxyIntegration.routeHandler', () => {
     }, event as any, context as any)
 
     expect(actionSpy).toHaveBeenCalledWith({
-      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: "/", paths: {}
+      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: '/', paths: {}
     }, context)
   })
 
   it('should remove basepath from root path if coming over custom domain name', () => {
     const actionSpy = jasmine.createSpy('action')
     const event = {
-      httpMethod: 'GET', path: "/shortcut-itemsdev",
-      headers: { Host: "api.ep.welt.de" },
+      httpMethod: 'GET', path: '/shortcut-itemsdev',
+      headers: { Host: 'api.ep.welt.de' },
       requestContext: { apiId: 'blabla' }
     }
     proxyIntegration({
@@ -184,14 +182,14 @@ describe('proxyIntegration.routeHandler', () => {
       }]
     }, event as any, context)
     expect(actionSpy).toHaveBeenCalledWith({
-      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: "/", paths: {}
+      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: '/', paths: {}
     }, context)
   })
   it('should remove basepath from multi-slash-path if coming over custom domain name', () => {
     const actionSpy = jasmine.createSpy('action')
     const event = {
-      httpMethod: 'GET', path: "/shortcut-itemsdev/123/456",
-      headers: { Host: "api.ep.welt.de" },
+      httpMethod: 'GET', path: '/shortcut-itemsdev/123/456',
+      headers: { Host: 'api.ep.welt.de' },
       requestContext: { apiId: 'blabla' }
     }
     proxyIntegration({
@@ -205,27 +203,30 @@ describe('proxyIntegration.routeHandler', () => {
       httpMethod: 'GET',
       headers: jasmine.anything(),
       requestContext: jasmine.anything(),
-      path: "/123/456",
+      path: '/123/456',
       paths: {}
     }, context)
   })
   it('should not change path if not coming over custom domain name', async () => {
-    await assertPathIsUnchanged("blabla.execute-api.eu-central-1.amazonaws.com")
+    await assertPathIsUnchanged('blabla.execute-api.eu-central-1.amazonaws.com')
   })
   it('should not change path if coming over localhost', async () => {
-    await assertPathIsUnchanged("localhost")
+    await assertPathIsUnchanged('localhost')
   })
   it('should return 400 for an invalid body', async () => {
     const result = await proxyIntegration({ routes: [{} as any] },
       { httpMethod: 'GET', path: '/', body: '{keinJson' } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ "message": "body is not a valid JSON", "error": "ParseError" }),
+      body: JSON.stringify({ 'message': 'body is not a valid JSON', 'error': 'ParseError' }),
       headers: jasmine.anything()
     })
   })
   it('should return error for no process found', async () => {
-    const result = await proxyIntegration({ routes: [{} as any] }, { httpMethod: 'GET', path: '/' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration({ routes: [{} as any] }, {
+      httpMethod: 'GET',
+      path: '/'
+    } as APIGatewayProxyEvent, context)
 
     expect(result).toEqual({
       statusCode: 404,
@@ -291,11 +292,14 @@ describe('proxyIntegration.routeHandler', () => {
         }
       ]
     }
-    const result = await proxyIntegration(routeConfig, { path: '/', httpMethod: 'GET' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 200,
-      headers: { "Content-Type": "application/json", "a": "1", "b": "2" },
-      body: "{}"
+      headers: { 'Content-Type': 'application/json', 'a': '1', 'b': '2' },
+      body: '{}'
     })
   })
 
@@ -310,11 +314,14 @@ describe('proxyIntegration.routeHandler', () => {
         }
       ]
     }
-    const result = await proxyIntegration(routeConfig, { path: '/', httpMethod: 'GET' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: "{}"
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
     })
   })
 
@@ -332,11 +339,14 @@ describe('proxyIntegration.routeHandler', () => {
       ],
       errorMapping: { 'myerror': 501 }
     }
-    const result = await proxyIntegration(routeConfig, { path: '/', httpMethod: 'GET' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 501,
       body: '{"message":"bla","error":"myerror"}',
-      headers: Object.assign({ "Content-Type": "application/json" }, expectedCorsHeaders)
+      headers: Object.assign({ 'Content-Type': 'application/json' }, expectedCorsHeaders)
     })
   })
   it('should modify incorrect error', async () => {
@@ -352,10 +362,13 @@ describe('proxyIntegration.routeHandler', () => {
         }
       ]
     }
-    const result = await proxyIntegration(routeConfig, { path: '/', httpMethod: 'GET' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 500,
-      body: JSON.stringify({ error: "ServerError", message: "Generic error:" + JSON.stringify(incorrectError) }),
+      body: JSON.stringify({ error: 'ServerError', message: 'Generic error:' + JSON.stringify(incorrectError) }),
       headers: expectedCorsHeaders
     })
   })
@@ -373,7 +386,10 @@ describe('proxyIntegration.routeHandler', () => {
         }
       ]
     }
-    const result = await proxyIntegration(routeConfig, { path: '/', httpMethod: 'GET' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 666,
       body: '{"message":{"reason":"oops"},"error":666}',
@@ -385,7 +401,7 @@ describe('proxyIntegration.routeHandler', () => {
 describe('proxyIntegration.proxyPath', () => {
 
   it('single proxy path', async () => {
-    const spiedAction = jasmine.createSpy('action').and.returnValue({ })
+    const spiedAction = jasmine.createSpy('action').and.returnValue({})
     const routeConfig: ProxyIntegrationConfig = {
       proxyPath: 'apiPath',
       routes: [
@@ -397,23 +413,31 @@ describe('proxyIntegration.proxyPath', () => {
       ]
     }
 
-    const result = await proxyIntegration(routeConfig, { resource: "/{apiPath+}",
-                        path: "/article/list",
-                        pathParameters: { apiPath: "/article/list" },
-                        httpMethod: 'GET' } as any, context)
+    const result = await proxyIntegration(routeConfig, {
+      resource: '/{apiPath+}',
+      path: '/article/list',
+      pathParameters: { apiPath: '/article/list' },
+      httpMethod: 'GET'
+    } as any, context)
 
-    expect(spiedAction).toHaveBeenCalledWith({ resource: "/{apiPath+}", paths: {}, path: "/article/list", httpMethod: 'GET', pathParameters: { apiPath: "/article/list" } }, context)
+    expect(spiedAction).toHaveBeenCalledWith({
+      resource: '/{apiPath+}',
+      paths: {},
+      path: '/article/list',
+      httpMethod: 'GET',
+      pathParameters: { apiPath: '/article/list' }
+    }, context)
     expect(result).toEqual({
       statusCode: 200,
       body: '{}',
-      headers: Object.assign({ "Content-Type": "application/json" })
+      headers: Object.assign({ 'Content-Type': 'application/json' })
     })
 
   })
 
   it('multiple proxy path', async () => {
-    const articleAction = jasmine.createSpy('action').and.returnValue({ })
-    const sectionAction = jasmine.createSpy('action').and.returnValue({ })
+    const articleAction = jasmine.createSpy('action').and.returnValue({})
+    const sectionAction = jasmine.createSpy('action').and.returnValue({})
     const routeConfig: ProxyIntegrationConfig = {
       proxyPath: 'apiPath',
       routes: [
@@ -429,18 +453,34 @@ describe('proxyIntegration.proxyPath', () => {
         }
       ]
     }
-    await proxyIntegration(routeConfig, { resource: "/{apiPath+}",
-      path: "/article/list",
-      pathParameters: { apiPath: "/article/list" },
-      httpMethod: 'GET' } as any, context)
-    expect(articleAction).toHaveBeenCalledWith({ resource: "/{apiPath+}", paths: {}, path: "/article/list", httpMethod: 'GET', pathParameters: { apiPath: "/article/list" } }, context)
+    await proxyIntegration(routeConfig, {
+      resource: '/{apiPath+}',
+      path: '/article/list',
+      pathParameters: { apiPath: '/article/list' },
+      httpMethod: 'GET'
+    } as any, context)
+    expect(articleAction).toHaveBeenCalledWith({
+      resource: '/{apiPath+}',
+      paths: {},
+      path: '/article/list',
+      httpMethod: 'GET',
+      pathParameters: { apiPath: '/article/list' }
+    }, context)
     expect(sectionAction).not.toHaveBeenCalled()
 
-    await proxyIntegration(routeConfig, { resource: "/{apiPath+}",
-      path: "/section/list",
-      pathParameters: { apiPath: "/section/list" },
-      httpMethod: 'GET' } as any, context)
-    expect(sectionAction).toHaveBeenCalledWith({ resource: "/{apiPath+}", paths: {}, path: "/section/list", httpMethod: 'GET', pathParameters: { apiPath: "/section/list" } }, context)
+    await proxyIntegration(routeConfig, {
+      resource: '/{apiPath+}',
+      path: '/section/list',
+      pathParameters: { apiPath: '/section/list' },
+      httpMethod: 'GET'
+    } as any, context)
+    expect(sectionAction).toHaveBeenCalledWith({
+      resource: '/{apiPath+}',
+      paths: {},
+      path: '/section/list',
+      httpMethod: 'GET',
+      pathParameters: { apiPath: '/section/list' }
+    }, context)
 
   })
 })
@@ -461,7 +501,10 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
         { method: 'GET', path: '/', action: () => Promise.resolve(customBody) }
       ]
     }
-    const result = await proxyIntegration(routeConfig, { path: '/', httpMethod: 'GET' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 201,
       headers: {
@@ -478,7 +521,10 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
         { method: 'GET', path: '/', action: () => Promise.resolve({ foo: 'bar' } as any) }
       ]
     }
-    const result = await proxyIntegration(routeConfig, { path: '/', httpMethod: 'GET' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 200,
       headers: jasmine.anything(),
@@ -493,11 +539,14 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
       ],
       errorMapping: { 'myError': 599 }
     }
-    const result = await proxyIntegration(routeConfig, { path: '/', httpMethod: 'GET' } as APIGatewayProxyEvent, context)
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
     expect(result).toEqual({
       statusCode: 599,
       body: '{"message":"doof","error":"myError"}',
-      headers: { "Content-Type": "application/json" }
+      headers: { 'Content-Type': 'application/json' }
     })
   })
 })
@@ -505,7 +554,7 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
 const assertPathIsUnchanged = async (hostname: string) => {
   const actionSpy = jasmine.createSpy('action')
   const event = {
-    httpMethod: 'GET', path: "/123/456",
+    httpMethod: 'GET', path: '/123/456',
     headers: { Host: hostname },
     requestContext: { apiId: 'blabla' }
   }
@@ -520,7 +569,7 @@ const assertPathIsUnchanged = async (hostname: string) => {
     httpMethod: 'GET',
     headers: jasmine.anything(),
     requestContext: jasmine.anything(),
-    path: "/123/456",
+    path: '/123/456',
     paths: {}
   }, context)
 }
