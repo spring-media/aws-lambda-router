@@ -3,3 +3,7 @@ coverage
 .idea
 *.iml
 dist
+lib/*.d.ts
+lib/*.js
+index.js
+index.d.ts

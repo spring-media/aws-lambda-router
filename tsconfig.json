@@ -4,7 +4,6 @@
     "lib": [
       "es2017"
     ],
-    "outDir": "./dist",
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2017",
@@ -15,10 +14,5 @@
   "exclude": [
     "./test/**",
     "./dist/**"
-  ],
-  "paths": {
-      "*": [
-        "dist/*"
-      ]
-    }
+  ]
 }

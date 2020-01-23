@@ -1,12 +1,13 @@
 {
   "name": "aws-lambda-router",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "AWS lambda router",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
-    "test": "jest --coverage",
-    "build": "tsc"
+    "test": "yarn clean && jest --coverage",
+    "build": "tsc",
+    "clean": "rm -f lib/*.d.ts lib/*.js index.js index.d.ts"
   },
   "repository": {
     "type": "git",
@@ -21,9 +22,6 @@
     "router",
     "routing",
     "s3"
-  ],
-  "files": [
-    "dist/**/*"
   ],
   "author": "Christian Gohlke <christian.gohlke@spring-media.de> (https://www.welt.de)",
   "license": "Apache-2.0",

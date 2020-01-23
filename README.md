@@ -329,13 +329,14 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 ## Release History
 
-* 0.7.1 
+* 0.7.2 
    * code style cleanup
    * fix: hosted package on npmjs should now worked
 * 0.7.0 
    * migrate to typescript
    * using aws-lambda typings
    * proxyIntegration: cors is now optional (default: false)
+   * removed use of aws lambda handler callback function (using Promise instead)
    * experimental _proxy path support_ (thanks to [@swaner](https://github.com/swaner))
 * 0.6.2 
   * take away old gulp dependency to run tests, works now with scripts in package.json
