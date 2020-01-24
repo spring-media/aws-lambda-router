@@ -1,17 +1,19 @@
 import { APIGatewayEventRequestContext, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { ProcessMethod } from './EventProcessor'
 
-export type ProxyIntegrationEvent = APIGatewayProxyEvent
 type ProxyIntegrationParams = {
   paths?: { [paramId: string]: string }
 }
-export type ProxyIntegrationEventWithParams = APIGatewayProxyEvent & ProxyIntegrationParams
+type ProxyIntegrationBody<T = unknown> = {
+  body: T
+}
+export type ProxyIntegrationEvent<T = unknown> = Omit<APIGatewayProxyEvent, 'body'> & ProxyIntegrationParams & ProxyIntegrationBody<T>
 
 export interface ProxyIntegrationRoute {
   path: string
   method: string
   action: (
-    request: ProxyIntegrationEventWithParams,
+    request: ProxyIntegrationEvent<unknown>,
     context: APIGatewayEventRequestContext
   ) => APIGatewayProxyResult | Promise<APIGatewayProxyResult>
 }
@@ -37,7 +39,7 @@ export interface ProxyIntegrationConfig {
   proxyPath?: string
 }
 
-const NO_MATCHING_ACTION = (request: APIGatewayProxyEvent) => {
+const NO_MATCHING_ACTION = (request: ProxyIntegrationEvent) => {
   throw {
     reason: 'NO_MATCHING_ACTION',
     message: `Could not find matching action for ${request.path} and method ${request.httpMethod}`
@@ -51,7 +53,7 @@ const addCorsHeaders = (toAdd: APIGatewayProxyResult['headers'] = {}) => {
   return toAdd
 }
 
-const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 'action'>, event: ProxyIntegrationEventWithParams,
+const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 'action'>, event: ProxyIntegrationEvent,
   context: APIGatewayEventRequestContext, headers: APIGatewayProxyResult['headers']) => {
 
   const res = await actionConfig.action(event, context)
@@ -73,7 +75,7 @@ const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 
   }
 }
 
-export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEventWithParams, APIGatewayEventRequestContext, APIGatewayProxyResult> =
+export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent, APIGatewayEventRequestContext, APIGatewayProxyResult> =
   (proxyIntegrationConfig, event, context) => {
 
     if (proxyIntegrationConfig.debug) {
@@ -125,10 +127,12 @@ export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEven
         paths: undefined
       }
 
-      event.paths = actionConfig.paths
+      const proxyEvent: ProxyIntegrationEvent = event
+
+      proxyEvent.paths = actionConfig.paths
       if (event.body) {
         try {
-          event.body = JSON.parse(event.body)
+          proxyEvent.body = JSON.parse(event.body)
         } catch (parseError) {
           console.log(`Could not parse body as json: ${event.body}`, parseError)
           return {
@@ -138,7 +142,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEven
           }
         }
       }
-      return processActionAndReturn(actionConfig, event, context, headers).catch(error => {
+      return processActionAndReturn(actionConfig, proxyEvent, context, headers).catch(error => {
         console.log('Error while handling action function.', error)
         return convertError(error, errorMapping, headers)
       })

@@ -54,7 +54,7 @@ export const handler = router.handler({
             }
         ]
     }
-}
+})
 ```
 
 ## Proxy path support (work in progress)
@@ -94,6 +94,36 @@ exports.handler = router.handler({
             }
         ]
     }
+})
+```
+
+Typescript example:
+```ts
+import * as router from 'aws-lambda-router'
+import { ProxyIntegrationEvent } from 'aws-lambda-router/lib/proxyIntegration'
+
+export const handler = router.handler({
+    proxyIntegration: {
+        routes: [
+            {
+                path: '/save',
+                method: 'POST',
+                // request.body needs type assertion, because it defaults to type unknown (user input should be checked):
+                action: (request, context) => {
+                    const { text } = request.body as { text: string }
+                    return `You called me with: ${text}`
+                }
+            },
+            {
+                path: '/save',
+                method: 'POST',
+                // it's also possible to set a type (no type check):
+                action: (request: ProxyIntegrationEvent<{ text: string }>, context) => {
+                    return `You called me with: ${request.body.text}`
+                }
+            }
+        ]
+    }
 }
 ```
 
@@ -120,7 +150,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```  
 
 If CORS is activated, these default headers will be sent on every response:  
@@ -152,7 +182,7 @@ export const handler = router.handler({
             'ServerError': 500
         }
     }
-});
+})
 
 function doThrowAnException(body) {
     throw {reason: 'MyCustomError', message: 'Throw an error for this example'}
@@ -187,7 +217,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```
 
 ## SQS to Lambda Integrations
@@ -214,7 +244,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```
 
 An SQS message always contains an array of records. In each SQS record there is the message in the body JSON key. 
@@ -291,7 +321,7 @@ export const handler = router.handler({
         ],
         debug: true
     }
-});
+})
 ```
 
 Per s3 event there can be several records per event. The action methods are called one after the other record. The result of the action method is an array with objects insides.
@@ -328,8 +358,9 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 
 ## Release History
-
-* 0.7.2 
+* 0.7.2
+   * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
+* 0.7.1
    * code style cleanup
    * fix: hosted package on npmjs should now worked
 * 0.7.0 
