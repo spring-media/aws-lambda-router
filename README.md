@@ -10,7 +10,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 ## Features
 
 * Easy Handling of [ANY method](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html#setup-method-add-http-method) in API Gateways
-* Simplifies writing lambda handlers (in nodejs)
+* Simplifies writing lambda handlers (in nodejs > 8)
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
 * No external dependencies
@@ -19,6 +19,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
     * SNS
     * SQS  
     * S3
+* Compatibility with Typescript >= 3.5
 
 ## Installation
 
@@ -106,7 +107,7 @@ export const handler = router.handler({
     proxyIntegration: {
         routes: [
             {
-                path: '/save',
+                path: '/saveExample',
                 method: 'POST',
                 // request.body needs type assertion, because it defaults to type unknown (user input should be checked):
                 action: (request, context) => {
@@ -115,7 +116,7 @@ export const handler = router.handler({
                 }
             },
             {
-                path: '/save',
+                path: '/saveExample2',
                 method: 'POST',
                 // it's also possible to set a type (no type check):
                 action: (request: ProxyIntegrationEvent<{ text: string }>, context) => {
@@ -358,7 +359,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 
 ## Release History
-* 0.7.2
+* 0.8.0
    * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
    * fix: changed @types/aws-lambda from devDependency to dependency
    * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)
