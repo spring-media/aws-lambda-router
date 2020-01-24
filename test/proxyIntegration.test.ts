@@ -2,7 +2,7 @@
 import { process as proxyIntegration, ProxyIntegrationConfig } from '../lib/proxyIntegration'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 
-function forEach (arrayOfArrays: any) {
+function forEach(arrayOfArrays: any) {
   return {
     it: (description: string, testCaseFunction: (...args: any[]) => void | Promise<void>) => {
       arrayOfArrays.forEach((innerArray: any) => {
@@ -374,7 +374,7 @@ describe('proxyIntegration.routeHandler', () => {
   })
 
   it('should pass through error statuscode', async () => {
-    const statusCodeError = { status: 666, message: { reason: 'oops' } }
+    const statusCodeError = { statusCode: 666, message: { reason: 'oops' } }
     const routeConfig = {
       routes: [
         {

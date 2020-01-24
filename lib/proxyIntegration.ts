@@ -8,6 +8,7 @@ type ProxyIntegrationBody<T = unknown> = {
   body: T
 }
 export type ProxyIntegrationEvent<T = unknown> = Omit<APIGatewayProxyEvent, 'body'> & ProxyIntegrationParams & ProxyIntegrationBody<T>
+export type ProxyIntegrationResult = Omit<APIGatewayProxyResult, 'statusCode'> & { statusCode?: APIGatewayProxyResult['statusCode'] }
 
 export interface ProxyIntegrationRoute {
   path: string
@@ -15,7 +16,7 @@ export interface ProxyIntegrationRoute {
   action: (
     request: ProxyIntegrationEvent<unknown>,
     context: APIGatewayEventRequestContext
-  ) => APIGatewayProxyResult | Promise<APIGatewayProxyResult>
+  ) => ProxyIntegrationResult | Promise<ProxyIntegrationResult> | string | Promise<string>
 }
 
 export type ProxyIntegrationErrorMapping = {
@@ -23,7 +24,7 @@ export type ProxyIntegrationErrorMapping = {
 }
 
 export type ProxyIntegrationError = {
-  status: APIGatewayProxyResult['statusCode'],
+  statusCode: APIGatewayProxyResult['statusCode'],
   message: string
 } | {
   reason: string,
@@ -170,7 +171,7 @@ const normalizeRequestPath = (event: APIGatewayProxyEvent): string => {
 }
 
 const hasReason = (error: any): error is { reason: string } => typeof error.reason === 'string'
-const hasStatus = (error: any): error is { status: number } => typeof error.status === 'number'
+const hasStatus = (error: any): error is { statusCode: number } => typeof error.statusCode === 'number'
 
 const convertError = (error: ProxyIntegrationError | Error, errorMapping?: ProxyIntegrationErrorMapping, headers?: APIGatewayProxyResult['headers']) => {
   if (hasReason(error) && errorMapping && errorMapping[error.reason]) {
@@ -181,8 +182,8 @@ const convertError = (error: ProxyIntegrationError | Error, errorMapping?: Proxy
     }
   } else if (hasStatus(error)) {
     return {
-      statusCode: error.status,
-      body: JSON.stringify({ message: error.message, error: error.status }),
+      statusCode: error.statusCode,
+      body: JSON.stringify({ message: error.message, error: error.statusCode }),
       headers: addCorsHeaders({})
     }
   }

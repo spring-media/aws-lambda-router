@@ -360,12 +360,14 @@ See here: https://yarnpkg.com/en/docs/cli/link
 ## Release History
 * 0.7.2
    * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
+   * fix: changed @types/aws-lambda from devDependency to dependency
+   * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)
 * 0.7.1
    * code style cleanup
    * fix: hosted package on npmjs should now worked
 * 0.7.0 
    * migrate to typescript
-   * using aws-lambda typings
+   * using @types/aws-lambda typings
    * proxyIntegration: cors is now optional (default: false)
    * removed use of aws lambda handler callback function (using Promise instead)
    * experimental _proxy path support_ (thanks to [@swaner](https://github.com/swaner))
