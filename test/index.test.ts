@@ -6,7 +6,7 @@ const lib99 = '../test/__mocks__/lib99'
 
 const lib1Config = { [lib1]: {} } as any
 const event = {} as any
-const context = {} as any
+const context = {} as any
 
 describe('processor.configuration', () => {
   (global as any).libMock = {
@@ -61,7 +61,9 @@ describe('processor.results', () => {
   })
   it('should call reject synchronous with errormessage', async () => {
     (global as any).libMock = {
-      lib1: () => { throw new Error('myerror') }
+      lib1: () => {
+        throw new Error('myerror')
+      }
     }
 
     const result = handler(lib1Config)(event, context)

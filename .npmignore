@@ -1,0 +1,17 @@
+test/
+node_modules/
+coverage
+
+.editorconfig
+.gitignore
+.travis.yml
+jest.config.js
+tsconfig.json
+tslint.json
+yarn.lock
+
+# ignore the .ts files
+*.ts
+
+# include the .d.ts files
+!*.d.ts

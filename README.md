@@ -10,7 +10,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 ## Features
 
 * Easy Handling of [ANY method](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html#setup-method-add-http-method) in API Gateways
-* Simplifies writing lambda handlers (in nodejs)
+* Simplifies writing lambda handlers (in nodejs > 8)
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
 * No external dependencies
@@ -19,6 +19,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
     * SNS
     * SQS  
     * S3
+* Compatibility with Typescript >= 3.5
 
 ## Installation
 
@@ -70,10 +71,10 @@ export const handler = router.handler({
 
 The proxy integration usually works using a path configured in the API gateway. For example: `/article/{id}`.
 
-If you use the WIP *proxy path support*, the complete path will be used to match a route config in `proxyIntegration`. This can be used to build an [Simple Proxy with API Gateway]([https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-http.html](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-http.html))
+If you use the WIP *proxy path support*, the complete path will be used to match a route config in `proxyIntegration`. This can be used to build an [Simple Proxy with API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-http.html)
 
 Example:
-* Resource in API Gateway : /{proxy+}
+* Resource in API Gateway : /{proxy+} [see Proxy Integration with a Proxy Resource](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html)
 * Method: ANY
 
 With the lambda configuration shown below the following paths are matched:
@@ -104,6 +105,36 @@ exports.handler = router.handler({
         ]
     }
 })
+```
+
+Typescript example:
+```ts
+import * as router from 'aws-lambda-router'
+import { ProxyIntegrationEvent } from 'aws-lambda-router/lib/proxyIntegration'
+
+export const handler = router.handler({
+    proxyIntegration: {
+        routes: [
+            {
+                path: '/saveExample',
+                method: 'POST',
+                // request.body needs type assertion, because it defaults to type unknown (user input should be checked):
+                action: (request, context) => {
+                    const { text } = request.body as { text: string }
+                    return `You called me with: ${text}`
+                }
+            },
+            {
+                path: '/saveExample2',
+                method: 'POST',
+                // it's also possible to set a type (no type check):
+                action: (request: ProxyIntegrationEvent<{ text: string }>, context) => {
+                    return `You called me with: ${request.body.text}`
+                }
+            }
+        ]
+    }
+}
 ```
 
 ## Enable CORS 
@@ -337,13 +368,20 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 
 ## Release History
-
-* 0.7.1
+* 0.8.2
    * added support for Open API parameter definitions e.g.: /section/{id}
+* 0.8.1
+   * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
+   * fix: changed @types/aws-lambda from devDependency to dependency
+   * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)
+* 0.7.1
+   * code style cleanup
+   * fix: hosted package on npmjs should now worked
 * 0.7.0 
    * migrate to typescript
-   * using aws-lambda typings
+   * using @types/aws-lambda typings
    * proxyIntegration: cors is now optional (default: false)
+   * removed use of aws lambda handler callback function (using Promise instead)
    * experimental _proxy path support_ (thanks to [@swaner](https://github.com/swaner))
 * 0.6.2 
   * take away old gulp dependency to run tests, works now with scripts in package.json
