@@ -1,19 +1,22 @@
 import { APIGatewayEventRequestContext, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { ProcessMethod } from './EventProcessor'
 
-export type ProxyIntegrationEvent = APIGatewayProxyEvent
 type ProxyIntegrationParams = {
   paths?: { [paramId: string]: string }
 }
-export type ProxyIntegrationEventWithParams = APIGatewayProxyEvent & ProxyIntegrationParams
+type ProxyIntegrationBody<T = unknown> = {
+  body: T
+}
+export type ProxyIntegrationEvent<T = unknown> = Omit<APIGatewayProxyEvent, 'body'> & ProxyIntegrationParams & ProxyIntegrationBody<T>
+export type ProxyIntegrationResult = Omit<APIGatewayProxyResult, 'statusCode'> & { statusCode?: APIGatewayProxyResult['statusCode'] }
 
 export interface ProxyIntegrationRoute {
   path: string
   method: string
   action: (
-    request: ProxyIntegrationEventWithParams,
+    request: ProxyIntegrationEvent<unknown>,
     context: APIGatewayEventRequestContext
-  ) => APIGatewayProxyResult | Promise<APIGatewayProxyResult>
+  ) => ProxyIntegrationResult | Promise<ProxyIntegrationResult> | string | Promise<string>
 }
 
 export type ProxyIntegrationErrorMapping = {
@@ -21,7 +24,7 @@ export type ProxyIntegrationErrorMapping = {
 }
 
 export type ProxyIntegrationError = {
-  status: APIGatewayProxyResult['statusCode'],
+  statusCode: APIGatewayProxyResult['statusCode'],
   message: string
 } | {
   reason: string,
@@ -37,7 +40,7 @@ export interface ProxyIntegrationConfig {
   proxyPath?: string
 }
 
-const NO_MATCHING_ACTION = (request: APIGatewayProxyEvent) => {
+const NO_MATCHING_ACTION = (request: ProxyIntegrationEvent) => {
   throw {
     reason: 'NO_MATCHING_ACTION',
     message: `Could not find matching action for ${request.path} and method ${request.httpMethod}`
@@ -51,17 +54,15 @@ const addCorsHeaders = (toAdd: APIGatewayProxyResult['headers'] = {}) => {
   return toAdd
 }
 
-const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 'action'>, event: ProxyIntegrationEventWithParams,
-                                      context: APIGatewayEventRequestContext, headers: APIGatewayProxyResult['headers']) => {
+const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 'action'>, event: ProxyIntegrationEvent,
+  context: APIGatewayEventRequestContext, headers: APIGatewayProxyResult['headers']) => {
 
   const res = await actionConfig.action(event, context)
-  if (!res || !res.body) {
-    const consolidateBody = res && JSON.stringify(res) || '{}'
-
+  if (!res || typeof res !== 'object' || typeof res.body !== 'string') {
     return {
       statusCode: 200,
       headers,
-      body: consolidateBody
+      body: JSON.stringify(res) || '{}'
     }
   }
 
@@ -75,7 +76,7 @@ const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 
   }
 }
 
-export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEventWithParams, APIGatewayEventRequestContext, APIGatewayProxyResult> =
+export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent, APIGatewayEventRequestContext, APIGatewayProxyResult> =
   (proxyIntegrationConfig, event, context) => {
 
     if (proxyIntegrationConfig.debug) {
@@ -112,10 +113,11 @@ export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEven
     errorMapping['NO_MATCHING_ACTION'] = 404
 
     if (proxyIntegrationConfig.proxyPath) {
-      console.log('proxy path is set: ' + proxyIntegrationConfig.proxyPath)
       event.path = (event.pathParameters || {})[proxyIntegrationConfig.proxyPath]
-      console.log('proxy path with event path: ' + event.path)
-
+      if (proxyIntegrationConfig.debug) {
+        console.log('proxy path is set: ' + proxyIntegrationConfig.proxyPath)
+        console.log('proxy path with event path: ' + event.path)
+      }
     } else {
       event.path = normalizeRequestPath(event)
     }
@@ -126,10 +128,12 @@ export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEven
         paths: undefined
       }
 
-      event.paths = actionConfig.paths
+      const proxyEvent: ProxyIntegrationEvent = event
+
+      proxyEvent.paths = actionConfig.paths
       if (event.body) {
         try {
-          event.body = JSON.parse(event.body)
+          proxyEvent.body = JSON.parse(event.body)
         } catch (parseError) {
           console.log(`Could not parse body as json: ${event.body}`, parseError)
           return {
@@ -139,7 +143,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, ProxyIntegrationEven
           }
         }
       }
-      return processActionAndReturn(actionConfig, event, context, headers).catch(error => {
+      return processActionAndReturn(actionConfig, proxyEvent, context, headers).catch(error => {
         console.log('Error while handling action function.', error)
         return convertError(error, errorMapping, headers)
       })
@@ -154,12 +158,12 @@ const normalizeRequestPath = (event: APIGatewayProxyEvent): string => {
     return event.path
   }
 
-  // ugly hack: if host is from API-Gateway 'Custom Domain Name Mapping', then event.path has the value '/basepath/resource-path/';
+  // ugly hack: if host is from API-Gateway 'Custom Domain Name Mapping', then event.path has the value '/basepath/resource-path/'
   // if host is from amazonaws.com, then event.path is just '/resource-path':
   const apiId = event.requestContext ? event.requestContext.apiId : null // the apiId that is the first part of the amazonaws.com-host
   if ((apiId && event.headers && event.headers.Host && event.headers.Host.substring(0, apiId.length) !== apiId)) {
     // remove first path element:
-    const groups: any = /\/[^\/]+(.*)/.exec(event.path) || [null, null]
+    const groups = /\/[^\/]+(.*)/.exec(event.path) || [null, null]
     return groups[1] || '/'
   }
 
@@ -167,7 +171,7 @@ const normalizeRequestPath = (event: APIGatewayProxyEvent): string => {
 }
 
 const hasReason = (error: any): error is { reason: string } => typeof error.reason === 'string'
-const hasStatus = (error: any): error is { status: number } => typeof error.status === 'number'
+const hasStatus = (error: any): error is { statusCode: number } => typeof error.statusCode === 'number'
 
 const convertError = (error: ProxyIntegrationError | Error, errorMapping?: ProxyIntegrationErrorMapping, headers?: APIGatewayProxyResult['headers']) => {
   if (hasReason(error) && errorMapping && errorMapping[error.reason]) {
@@ -178,8 +182,8 @@ const convertError = (error: ProxyIntegrationError | Error, errorMapping?: Proxy
     }
   } else if (hasStatus(error)) {
     return {
-      statusCode: error.status,
-      body: JSON.stringify({ message: error.message, error: error.status }),
+      statusCode: error.statusCode,
+      body: JSON.stringify({ message: error.message, error: error.statusCode }),
       headers: addCorsHeaders({})
     }
   }
@@ -189,12 +193,11 @@ const convertError = (error: ProxyIntegrationError | Error, errorMapping?: Proxy
       body: JSON.stringify({ error: 'ServerError', message: `Generic error:${JSON.stringify(error)}` }),
       headers: addCorsHeaders({})
     }
-  } catch (stringifyError) {
-  }
+  } catch (stringifyError) { }
 
   return {
     statusCode: 500,
-    body: JSON.stringify({ error: 'ServerError', message: `Generic error` })
+    body: JSON.stringify({ error: 'ServerError', message: 'Generic error' })
   }
 }
 

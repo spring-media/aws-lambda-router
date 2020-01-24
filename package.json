@@ -1,6 +1,6 @@
 {
   "name": "aws-lambda-router",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "description": "AWS lambda router",
   "main": "index.js",
   "types": "index.d.ts",
@@ -30,13 +30,14 @@
   },
   "homepage": "https://github.com/spring-media/aws-lambda-router#readme",
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.39",
-    "@types/jest": "^24.0.25",
+    "@types/jest": "^24.9.0",
     "@types/node": "^8.10.59",
-    "codecov": "^3.6.1",
+    "codecov": "^3.6.2",
     "jest": "24.9.0",
     "ts-jest": "24.2.0",
-    "typescript": "3.7.4"
+    "typescript": "3.7.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.40"
+  }
 }

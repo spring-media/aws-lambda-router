@@ -2,7 +2,7 @@
 import { process as proxyIntegration, ProxyIntegrationConfig } from '../lib/proxyIntegration'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 
-function forEach (arrayOfArrays: any) {
+function forEach(arrayOfArrays: any) {
   return {
     it: (description: string, testCaseFunction: (...args: any[]) => void | Promise<void>) => {
       arrayOfArrays.forEach((innerArray: any) => {
@@ -374,7 +374,7 @@ describe('proxyIntegration.routeHandler', () => {
   })
 
   it('should pass through error statuscode', async () => {
-    const statusCodeError = { status: 666, message: { reason: 'oops' } }
+    const statusCodeError = { statusCode: 666, message: { reason: 'oops' } }
     const routeConfig = {
       routes: [
         {
@@ -515,10 +515,21 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
     })
   })
 
-  it('should return async result', async () => {
+  forEach([
+    [{ foo: 'bar' }, JSON.stringify({ foo: 'bar' })],
+    [{ body: 1234 }, JSON.stringify({ body: 1234 })],
+    [{ body: '1234' }, '1234'],
+    ['', '""'],
+    ['abc', '"abc"'],
+    [false, 'false'],
+    [true, 'true'],
+    [null, 'null'],
+    [1234, '1234'],
+    [undefined, '{}']
+  ]).it('should return async result', async (returnValue, expectedBody) => {
     const routeConfig = {
       routes: [
-        { method: 'GET', path: '/', action: () => Promise.resolve({ foo: 'bar' } as any) }
+        { method: 'GET', path: '/', action: () => Promise.resolve(returnValue) }
       ]
     }
     const result = await proxyIntegration(routeConfig, {
@@ -528,7 +539,7 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
     expect(result).toEqual({
       statusCode: 200,
       headers: jasmine.anything(),
-      body: JSON.stringify({ foo: 'bar' })
+      body: expectedBody
     })
   })
 

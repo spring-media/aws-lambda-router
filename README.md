@@ -10,7 +10,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 ## Features
 
 * Easy Handling of [ANY method](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html#setup-method-add-http-method) in API Gateways
-* Simplifies writing lambda handlers (in nodejs)
+* Simplifies writing lambda handlers (in nodejs > 8)
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
 * No external dependencies
@@ -19,6 +19,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
     * SNS
     * SQS  
     * S3
+* Compatibility with Typescript >= 3.5
 
 ## Installation
 
@@ -54,7 +55,7 @@ export const handler = router.handler({
             }
         ]
     }
-}
+})
 ```
 
 ## Proxy path support (work in progress)
@@ -94,6 +95,36 @@ exports.handler = router.handler({
             }
         ]
     }
+})
+```
+
+Typescript example:
+```ts
+import * as router from 'aws-lambda-router'
+import { ProxyIntegrationEvent } from 'aws-lambda-router/lib/proxyIntegration'
+
+export const handler = router.handler({
+    proxyIntegration: {
+        routes: [
+            {
+                path: '/saveExample',
+                method: 'POST',
+                // request.body needs type assertion, because it defaults to type unknown (user input should be checked):
+                action: (request, context) => {
+                    const { text } = request.body as { text: string }
+                    return `You called me with: ${text}`
+                }
+            },
+            {
+                path: '/saveExample2',
+                method: 'POST',
+                // it's also possible to set a type (no type check):
+                action: (request: ProxyIntegrationEvent<{ text: string }>, context) => {
+                    return `You called me with: ${request.body.text}`
+                }
+            }
+        ]
+    }
 }
 ```
 
@@ -120,7 +151,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```  
 
 If CORS is activated, these default headers will be sent on every response:  
@@ -152,7 +183,7 @@ export const handler = router.handler({
             'ServerError': 500
         }
     }
-});
+})
 
 function doThrowAnException(body) {
     throw {reason: 'MyCustomError', message: 'Throw an error for this example'}
@@ -187,7 +218,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```
 
 ## SQS to Lambda Integrations
@@ -214,7 +245,7 @@ export const handler = router.handler({
             }
         ]
     }
-});
+})
 ```
 
 An SQS message always contains an array of records. In each SQS record there is the message in the body JSON key. 
@@ -291,7 +322,7 @@ export const handler = router.handler({
         ],
         debug: true
     }
-});
+})
 ```
 
 Per s3 event there can be several records per event. The action methods are called one after the other record. The result of the action method is an array with objects insides.
@@ -328,13 +359,16 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 
 ## Release History
-
-* 0.7.2 
+* 0.8.0
+   * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
+   * fix: changed @types/aws-lambda from devDependency to dependency
+   * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)
+* 0.7.1
    * code style cleanup
    * fix: hosted package on npmjs should now worked
 * 0.7.0 
    * migrate to typescript
-   * using aws-lambda typings
+   * using @types/aws-lambda typings
    * proxyIntegration: cors is now optional (default: false)
    * removed use of aws lambda handler callback function (using Promise instead)
    * experimental _proxy path support_ (thanks to [@swaner](https://github.com/swaner))
