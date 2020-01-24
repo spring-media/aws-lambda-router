@@ -359,7 +359,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 
 ## Release History
-* 0.8.0
+* 0.8.1
    * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
    * fix: changed @types/aws-lambda from devDependency to dependency
    * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)

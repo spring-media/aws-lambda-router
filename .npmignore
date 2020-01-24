@@ -1,5 +1,6 @@
 test/
 node_modules/
+coverage
 
 .editorconfig
 .gitignore

@@ -7,6 +7,7 @@ script:
 - npx codecov -f ./coverage/coverage-final.json
 - yarn build
 deploy:
+  skip_cleanup: true
   provider: npm
   email: christian.gohlke@spring-media.de
   api_key:
