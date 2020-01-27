@@ -47,35 +47,44 @@ describe('proxyIntegration.routeHandler.selection', () => {
     }, { httpMethod: 'GET', path: '/123' } as APIGatewayProxyEvent, context)
     expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/123', paths: {} }, context)
   })
-  it('should select parameter match', () => {
+  forEach([
+    ['/:param'],
+    ['/{param}']
+  ]).it('should select parameter match', (path) => {
     const actionSpy = jasmine.createSpy('action')
     proxyIntegration({
       routes: [
         { path: '/', method: 'GET', action: () => '/' as any },
         { path: '/123', method: 'GET', action: () => '123' as any },
-        { path: '/:param', method: 'GET', action: actionSpy }
+        { path: path, method: 'GET', action: actionSpy }
       ]
     }, { httpMethod: 'GET', path: '/456' } as APIGatewayProxyEvent, context)
     expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/456', paths: { param: '456' } }, context)
   })
-  it('should select static match', () => {
+  forEach([
+    ['/:param'],
+    ['/{param}']
+  ]).it('should select static match', (path) => {
     const actionSpy = jasmine.createSpy('action')
     proxyIntegration({
       routes: [
         { path: '/', method: 'GET', action: () => '/' as any },
         { path: '/123', method: 'GET', action: actionSpy },
-        { path: '/:param', method: 'GET', action: () => 'param' as any }
+        { path: path, method: 'GET', action: () => 'param' as any }
       ]
     }, { httpMethod: 'GET', path: '/123' } as APIGatewayProxyEvent, context)
     expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/123', paths: {} }, context)
   })
-  it('should match urlencoded path', () => {
+  forEach([
+    ['/:param'],
+    ['/{param}']
+  ]).it('should match urlencoded path', (path) => {
     const actionSpy = jasmine.createSpy('action')
     proxyIntegration({
       routes: [
         { path: '/', method: 'GET', action: () => '/' as any },
         { path: '/123', method: 'GET', action: () => '123' as any },
-        { path: '/:param', method: 'GET', action: actionSpy }
+        { path: path, method: 'GET', action: actionSpy }
       ]
     }, { httpMethod: 'GET', path: '/%2Fwirtschaft%2Farticle85883...tml' } as APIGatewayProxyEvent, context)
     expect(actionSpy).toHaveBeenCalledWith({
@@ -84,11 +93,14 @@ describe('proxyIntegration.routeHandler.selection', () => {
       paths: { param: '/wirtschaft/article85883...tml' }
     }, context)
   })
-  it('should select match containing hyphen', () => {
+  forEach([
+    ['/:param'],
+    ['/{param}']
+  ]).it('should select match containing hyphen', (path) => {
     const actionSpy = jasmine.createSpy('action')
     proxyIntegration({
       routes: [
-        { path: '/:param', method: 'GET', action: actionSpy }
+        { path: path, method: 'GET', action: actionSpy }
       ]
     }, { httpMethod: 'GET', path: '/%2Fdeutschland-bewegt-sich%2F' } as APIGatewayProxyEvent, context)
     expect(actionSpy).toHaveBeenCalledWith({
@@ -97,11 +109,14 @@ describe('proxyIntegration.routeHandler.selection', () => {
       paths: { param: '/deutschland-bewegt-sich/' }
     }, context)
   })
-  it('should select match containing question marks and dots', () => {
+  forEach([
+    ['/:param'],
+    ['/{param}']
+  ]).it('should select match containing question marks and dots', (path) => {
     const actionSpy = jasmine.createSpy('action')
     proxyIntegration({
       routes: [
-        { path: '/:param', method: 'GET', action: actionSpy }
+        { path: path, method: 'GET', action: actionSpy }
       ]
     }, {
       httpMethod: 'GET',
@@ -264,7 +279,14 @@ describe('proxyIntegration.routeHandler', () => {
     ['/abc/:param1', '/abc/p1', { param1: 'p1' }],
     ['/abc/def/:param1', '/abc/def/p1', { param1: 'p1' }],
     ['/:param1/abc/:param2', '/p1/abc/p2', { param1: 'p1', param2: 'p2' }],
-    ['/:param1/abc/def/:param2', '/p1/abc/def/p2', { param1: 'p1', param2: 'p2' }]
+    ['/:param1/abc/def/:param2', '/p1/abc/def/p2', { param1: 'p1', param2: 'p2' }],
+    ['/{param1}', '/p1', { param1: 'p1' }],
+    ['/abc/{param1}', '/abc/p1', { param1: 'p1' }],
+    ['/abc/def/{param1}', '/abc/def/p1', { param1: 'p1' }],
+    ['/{param1}/abc/{param2}', '/p1/abc/p2', { param1: 'p1', param2: 'p2' }],
+    ['/{param1}/abc/def/{param2}', '/p1/abc/def/p2', { param1: 'p1', param2: 'p2' }],
+    ['/:param1/abc/{param2}', '/p1/abc/p2', { param1: 'p1', param2: 'p2' }],
+    ['/{param1}/abc/def/:param2', '/p1/abc/def/p2', { param1: 'p1', param2: 'p2' }]
   ]).it('should call action with path params for method/path', async (pathConfig, path, expectedPathValues) => {
     const spiedAction = jasmine.createSpy('action').and.returnValue({ foo: 'bar' })
     const routeConfig: ProxyIntegrationConfig = {

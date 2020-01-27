@@ -52,6 +52,15 @@ export const handler = router.handler({
                 action: (request, context) => {
                     return "You called me with: " + request.paths.id;
                 }
+            },
+            {
+                // request-path-pattern with a path variable in Open API style:
+                path: '/section/{id}',
+                method: 'GET',
+                // we can use the path param 'id' in the action call:
+                action: (request, context) => {
+                    return "You called me with: " + request.paths.id;
+                }
             }
         ]
     }
@@ -77,7 +86,7 @@ const router = require('aws-lambda-router');
 
 exports.handler = router.handler({
     proxyIntegration: {
-        proxyPath: proxy
+        proxyPath: proxy,
         routes: [
             {
                 path: '/article/list',
@@ -348,7 +357,7 @@ return {
         body: JSON.stringify({
             foo: 'bar'
         })
-    };
+    }
 ```
 
 ## Local developement
@@ -359,6 +368,8 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 
 ## Release History
+* 0.8.2
+   * added support for Open API parameter definitions e.g.: /section/{id}
 * 0.8.1
    * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
    * fix: changed @types/aws-lambda from devDependency to dependency

@@ -233,13 +233,13 @@ const findMatchingActionConfig = (httpMethod: string, httpPath: string, routeCon
 }
 
 const extractPathValues = (pathExpression: string, httpPath: string) => {
-  const pathValueRegex = new RegExp('^' + pathExpression.replace(/:[\w]+/g, '([^/]+)') + '$')
+  const pathValueRegex = new RegExp('^' + pathExpression.replace(/{[\w]+}|:[\w]+/g, '([^/]+)') + '$')
   const pathValues = pathValueRegex.exec(httpPath)
   return pathValues && pathValues.length > 0 ? pathValues.slice(1) : null
 }
 
 const extractPathNames = (pathExpression: string) => {
-  const pathNameRegex = new RegExp('^' + pathExpression.replace(/:[\w.]+/g, ':([\\w]+)') + '$')
+  const pathNameRegex = new RegExp('^' + pathExpression.replace(/{[\w.]+}|:[\w.]+/g, '[:{]([\\w]+)}?') + '$')
   const pathNames = pathNameRegex.exec(pathExpression)
   return pathNames && pathNames.length > 0 ? pathNames.slice(1) : null
 }
