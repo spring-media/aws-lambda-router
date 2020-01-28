@@ -21,6 +21,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
     * S3
 * Compatibility with Typescript >= 3.5
 
+
 ## Installation
 
 Install via npm
@@ -366,6 +367,13 @@ The best is to work with ```yarn link```
 
 See here: https://yarnpkg.com/en/docs/cli/link
 
+## Releasing
+
+It's simple. 
+
+Increase version in **package.json** (using [semantic version syntax](https://semver.org/)). After than create an new tag in github (with description, can be the same as of the release history below) with the same version (like v0.98.9). Our build pipeline at [Travis CI](https://travis-ci.org/spring-media/aws-lambda-router) will be started and release an new version at [NPM Repository](https://www.npmjs.com/package/aws-lambda-router).
+
+Thats all.
 
 ## Release History
 * 0.8.2
@@ -374,6 +382,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
    * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
    * fix: changed @types/aws-lambda from devDependency to dependency
    * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)
+  
 * 0.7.1
    * code style cleanup
    * fix: hosted package on npmjs should now worked
