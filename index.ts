@@ -50,7 +50,7 @@ export const handler = (routeConfig: RouteConfig) => {
         throw error.toString()
       }
     }
-    throw new Error('No event processor found to handle this kind of event!')
+    throw 'No event processor found to handle this kind of event!'
   }
 }
 
