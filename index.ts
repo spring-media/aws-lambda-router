@@ -50,14 +50,16 @@ export const handler = (routeConfig: RouteConfig) => {
         throw error.toString()
       }
     }
-    throw 'No event processor found to handle this kind of event!'
+    throw new Error('No event processor found to handle this kind of event!')
   }
 }
 
 const extractEventProcessorMapping = (routeConfig: RouteConfig) => {
   const processorMap = new Map<string, EventProcessor>()
-  for (let key of Object.keys(routeConfig)) {
-    if (key === 'debug') continue
+  for (const key of Object.keys(routeConfig)) {
+    if (key === 'debug') {
+      continue
+    }
     try {
       processorMap.set(key, require(`./lib/${key}`))
     } catch (error) {

@@ -115,8 +115,8 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
     if (proxyIntegrationConfig.proxyPath) {
       event.path = (event.pathParameters || {})[proxyIntegrationConfig.proxyPath]
       if (proxyIntegrationConfig.debug) {
-        console.log('proxy path is set: ' + proxyIntegrationConfig.proxyPath)
-        console.log('proxy path with event path: ' + event.path)
+        console.log(`proxy path is set: ${proxyIntegrationConfig.proxyPath}`)
+        console.log(`proxy path with event path: ${event.path}`)
       }
     } else {
       event.path = normalizeRequestPath(event)
@@ -206,7 +206,7 @@ const findMatchingActionConfig = (httpMethod: string, httpPath: string, routeCon
 
   const paths: ProxyIntegrationParams['paths'] = {}
   const matchingMethodRoutes = routeConfig.routes.filter(route => route.method === httpMethod)
-  for (let route of matchingMethodRoutes) {
+  for (const route of matchingMethodRoutes) {
     if (routeConfig.debug) {
       console.log(`Examining route ${route.path} to match ${httpPath}`)
     }
@@ -221,7 +221,7 @@ const findMatchingActionConfig = (httpMethod: string, httpPath: string, routeCon
       }
       return {
         action: route.action,
-        paths: paths
+        paths
       }
     }
   }
@@ -233,13 +233,13 @@ const findMatchingActionConfig = (httpMethod: string, httpPath: string, routeCon
 }
 
 const extractPathValues = (pathExpression: string, httpPath: string) => {
-  const pathValueRegex = new RegExp('^' + pathExpression.replace(/{[\w]+}|:[\w]+/g, '([^/]+)') + '$')
+  const pathValueRegex = new RegExp(`^${pathExpression.replace(/{[\w]+}|:[\w]+/g, '([^/]+)')}$`)
   const pathValues = pathValueRegex.exec(httpPath)
   return pathValues && pathValues.length > 0 ? pathValues.slice(1) : null
 }
 
 const extractPathNames = (pathExpression: string) => {
-  const pathNameRegex = new RegExp('^' + pathExpression.replace(/{[\w.]+}|:[\w.]+/g, '[:{]([\\w]+)}?') + '$')
+  const pathNameRegex = new RegExp(`^${pathExpression.replace(/{[\w.]+}|:[\w.]+/g, '[:{]([\\w]+)}?')}$`)
   const pathNames = pathNameRegex.exec(pathExpression)
   return pathNames && pathNames.length > 0 ? pathNames.slice(1) : null
 }
