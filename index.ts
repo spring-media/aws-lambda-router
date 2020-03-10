@@ -56,8 +56,10 @@ export const handler = (routeConfig: RouteConfig) => {
 
 const extractEventProcessorMapping = (routeConfig: RouteConfig) => {
   const processorMap = new Map<string, EventProcessor>()
-  for (let key of Object.keys(routeConfig)) {
-    if (key === 'debug') continue
+  for (const key of Object.keys(routeConfig)) {
+    if (key === 'debug') {
+      continue
+    }
     try {
       processorMap.set(key, require(`./lib/${key}`))
     } catch (error) {

@@ -27,7 +27,7 @@ export const process: ProcessMethod<SqsConfig, SqsEvent, Context, any> = (sqsCon
 
   const records = event.Records
   const recordSourceArn = records[0].eventSourceARN
-  for (let routeConfig of sqsConfig.routes) {
+  for (const routeConfig of sqsConfig.routes) {
     if (routeConfig.source instanceof RegExp) {
       if (routeConfig.source.test(recordSourceArn)) {
         const result = routeConfig.action(records.map(record => record.body), context)
