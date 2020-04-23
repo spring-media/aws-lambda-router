@@ -17,7 +17,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 * Currently there are four `processors` (callers for Lambda) implemented: 
     * API Gateway ANY method (called proxyIntegration)
     * SNS
-    * SQS  
+    * SQS
     * S3
 * Compatibility with Typescript >= 3.5
 
@@ -245,13 +245,13 @@ export const handler = router.handler({
                 // match complete SQS ARN:
                 source: 'arn:aws:sqs:us-west-2:594035263019:aticle-import',
                 // Attention: the messages Array is JSON-stringified
-                action: (messages, context) => messages.forEach(message => console.log(JSON.parse(message)))
+                action: (messages, context, records) => messages.forEach(message => console.log(JSON.parse(message)))
             },
             {
                 // a regex to match the source SQS ARN:
                 source: /.*notification/,
                 // Attention: the messages array is JSON-stringified
-                action: (messages, context) => service.doNotify(messages)
+                action: (messages, context, records) => service.doNotify(messages)
             }
         ]
     }
@@ -376,6 +376,8 @@ Increase version in **package.json** (using [semantic version syntax](https://se
 Thats all.
 
 ## Release History
+* 0.8.3
+   * added records to the SQS action for further processing
 * 0.8.2
    * added support for Open API parameter definitions e.g.: /section/{id}
 * 0.8.1

@@ -3,7 +3,7 @@ import { process as sqs, SqsEvent } from '../lib/sqs'
 describe('sqs.processor', () => {
   const context = {} as any
 
-  it('context should be passed through', () => {
+  it('context and records should be passed through', () => {
     const actionSpy = jasmine.createSpy('action')
 
     const context = { bla: 'blup' } as any
@@ -12,7 +12,7 @@ describe('sqs.processor', () => {
 
     sqs(sqsCfg, event, context)
 
-    expect(actionSpy).toHaveBeenCalledWith([event.Records[0].body], context)
+    expect(actionSpy).toHaveBeenCalledWith([event.Records[0].body], context, event.Records)
   })
 
   it('should ignore event if it is no SQS event', () => {
