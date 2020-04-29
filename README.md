@@ -224,12 +224,14 @@ export const handler = router.handler({
                 // a regex to match the content of the SNS-Subject:
                 subject: /.*/,
                 // Attention: the message is JSON-stringified
-                action: (sns, context) => service.doSomething(JSON.parse(sns.Message))
+                action: (sns, context, records) => service.doSomething(JSON.parse(sns.Message))
             }
         ]
     }
 })
 ```
+
+The *records* parameter contains `SNSEventRecord[]`. An exampe event structure can be found [here](lib/event-examples/sns.json). For example you can parse now the  [message attributes of the SNS](https://docs.aws.amazon.com/sns/latest/dg/sns-message-attributes.html) or reads the topic arn of SNS. 
 
 ## SQS to Lambda Integrations
 
