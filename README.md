@@ -13,7 +13,7 @@ A small library for [AWS Lambda](https://aws.amazon.com/lambda/details) providin
 * Simplifies writing lambda handlers (in nodejs > 8)
 * Lambda Proxy Resource support for AWS API Gateway
 * Enable CORS for requests
-* No external dependencies
+* No external dependencies - well, almost, only types of [aws-lambda](https://www.npmjs.com/package/@types/aws-lambda) :-)
 * Currently there are four `processors` (callers for Lambda) implemented: 
     * API Gateway ANY method (called proxyIntegration)
     * SNS
@@ -262,6 +262,8 @@ An SQS message always contains an array of records. In each SQS record there is 
 The `action` method gets all body elements from the router as an array.
 
 If more than one route matches, only the **first** is used!
+
+The *records* parameter contains the complete array of records, which handled by aws-lambda-router. An exampe can be found [here](lib/event-examples/sqs.json). This gives you the possibility to read metadata from the event. For example, you can parse the [message attributes of the SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-attributes.html) and use them for further processing. 
 
 ## S3 to Lambda Integrations
 

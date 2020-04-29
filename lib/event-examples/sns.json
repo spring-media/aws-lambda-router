@@ -1,0 +1,35 @@
+{
+  "Records": [
+      {
+          "EventSource": "aws:sns",
+          "EventVersion": "1.0",
+          "EventSubscriptionArn": "arn:aws:sns:eu-west-1:123782373565:production-updates:2fdd994c-f2b7-4c2f-a2f9-da83b590e0fc",
+          "Sns": {
+            "Type": "Notification",
+            "MessageId": "0629603b-448e-5366-88b4-309d651495c5",
+            "TopicArn": "arn:aws:sns:eu-west-1:123782373565:production-updates",
+            "Subject": null,
+            "Message": "{\"id\":\"159526803\",\"model\":\"news\",\"status\":\"draft\"}",
+            "Timestamp": "2016-11-16T08:56:58.227Z",
+            "SignatureVersion": "1",
+            "Signature": "dtXM9BlAJJhYkVObnKgHbqcB60pmNdEAE9f4bEOohizfPhg==",
+            "SigningCertUrl": "https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
+            "UnsubscribeUrl": "https://sns.eu-west-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-1:933767373565:production-escenic-updates:2fdd994c-f2b7-4c2f-a2f9-da83b590e0fc",
+            "MessageAttributes": {
+                  "stringAttribute": {
+                      "Type": "String",
+                      "Value": "stringvalue"
+                  },
+                  "binaryAttribute": {
+                      "Type": "Binary",
+                      "Value": "Ym9udmFsdWU="
+                  },
+                  "arrayAttribute": {
+                      "Type": "String",
+                      "Value": "[\"value1\", \"value2\"]"
+                  }
+            }
+          }
+      }
+  ]
+}
