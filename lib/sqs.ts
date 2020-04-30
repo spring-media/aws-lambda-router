@@ -5,7 +5,7 @@ export type SqsEvent = SQSEvent
 
 export interface SqsRoute {
   source: string | RegExp
-  action: (messages: SQSRecord['body'][], context: Context) => Promise<any> | any
+  action: (messages: SQSRecord['body'][], context: Context, records: SQSRecord[]) => Promise<any> | any
 }
 
 export interface SqsConfig {
@@ -30,12 +30,12 @@ export const process: ProcessMethod<SqsConfig, SqsEvent, Context, any> = (sqsCon
   for (const routeConfig of sqsConfig.routes) {
     if (routeConfig.source instanceof RegExp) {
       if (routeConfig.source.test(recordSourceArn)) {
-        const result = routeConfig.action(records.map(record => record.body), context)
+        const result = routeConfig.action(records.map(record => record.body), context, records)
         return result || {}
       }
     } else {
       if (routeConfig.source === recordSourceArn) {
-        const result = routeConfig.action(records.map(record => record.body), context)
+        const result = routeConfig.action(records.map(record => record.body), context, records)
         return result || {}
       }
     }
