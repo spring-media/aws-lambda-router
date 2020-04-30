@@ -380,15 +380,14 @@ Increase version in **package.json** (using [semantic version syntax](https://se
 Thats all.
 
 ## Release History
-* 0.8.3
-   * added records to the SQS action for further processing
+* unreleased
+   * added records to the SQS (#43) and SNS (#44) action for further processing
 * 0.8.2
    * added support for Open API parameter definitions e.g.: /section/{id}
 * 0.8.1
    * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
    * fix: changed @types/aws-lambda from devDependency to dependency
    * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)
-  
 * 0.7.1
    * code style cleanup
    * fix: hosted package on npmjs should now worked
