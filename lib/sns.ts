@@ -1,11 +1,11 @@
-import { Context, SNSEvent, SNSMessage } from 'aws-lambda'
+import { Context, SNSEvent, SNSMessage, SNSEventRecord } from 'aws-lambda'
 import { ProcessMethod } from './EventProcessor'
 
 export type SnsEvent = SNSEvent
 
 export interface SnsRoute {
   subject: RegExp
-  action: (sns: SNSMessage, context: Context) => Promise<any> | any
+  action: (sns: SNSMessage, context: Context, records: SNSEventRecord[]) => Promise<any> | any
 }
 
 export interface SnsConfig {
@@ -29,7 +29,7 @@ export const process: ProcessMethod<SnsConfig, SnsEvent, Context, any> = (snsCon
   for (const routeConfig of snsConfig.routes) {
     if (routeConfig.subject instanceof RegExp) {
       if (routeConfig.subject.test(sns.Subject)) {
-        const result = routeConfig.action(sns, context)
+        const result = routeConfig.action(sns, context, event.Records)
         return result || {}
       }
     } else {

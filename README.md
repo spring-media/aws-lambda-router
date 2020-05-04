@@ -224,12 +224,14 @@ export const handler = router.handler({
                 // a regex to match the content of the SNS-Subject:
                 subject: /.*/,
                 // Attention: the message is JSON-stringified
-                action: (sns, context) => service.doSomething(JSON.parse(sns.Message))
+                action: (sns, context, records) => service.doSomething(JSON.parse(sns.Message))
             }
         ]
     }
 })
 ```
+
+The *records* parameter contains `SNSEventRecord[]`. An exampe event structure can be found [here](lib/event-examples/sns.json). For example you can parse now the  [message attributes of the SNS](https://docs.aws.amazon.com/sns/latest/dg/sns-message-attributes.html) or reads the topic arn of SNS. 
 
 ## SQS to Lambda Integrations
 
@@ -378,15 +380,14 @@ Increase version in **package.json** (using [semantic version syntax](https://se
 Thats all.
 
 ## Release History
-* 0.8.3
-   * added records to the SQS action for further processing
+* unreleased
+   * added records to the SQS (#43) and SNS (#44) action for further processing
 * 0.8.2
    * added support for Open API parameter definitions e.g.: /section/{id}
 * 0.8.1
    * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
    * fix: changed @types/aws-lambda from devDependency to dependency
    * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)
-  
 * 0.7.1
    * code style cleanup
    * fix: hosted package on npmjs should now worked

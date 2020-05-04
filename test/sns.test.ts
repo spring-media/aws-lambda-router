@@ -3,7 +3,7 @@ import { process as sns, SnsConfig, SnsEvent } from '../lib/sns'
 describe('sns.processor', () => {
   const context = {} as any
 
-  it('context should be pass through', () => {
+  it('context and records should be pass through', () => {
     const actionSpy = jasmine.createSpy('action')
 
     const context = { bla: 'blup' } as any
@@ -12,7 +12,7 @@ describe('sns.processor', () => {
 
     sns(snsCfg, event, context)
 
-    expect(actionSpy).toHaveBeenCalledWith(event.Records[0].Sns, context)
+    expect(actionSpy).toHaveBeenCalledWith(event.Records[0].Sns, context, event.Records)
   })
 
   it('should ignore event if it is no SNS event', () => {
