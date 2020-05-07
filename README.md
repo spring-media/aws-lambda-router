@@ -109,6 +109,7 @@ exports.handler = router.handler({
 ```
 
 Typescript example:
+
 ```ts
 import * as router from 'aws-lambda-router'
 import { ProxyIntegrationEvent } from 'aws-lambda-router/lib/proxyIntegration'
@@ -145,6 +146,9 @@ To activate CORS on all http methods (OPTIONS requests are handled automatically
 See the following example:  
 
 
+<details>
+  <summary>CORS example</summary>
+
 ```js
 import * as router from 'aws-lambda-router'
 
@@ -163,6 +167,8 @@ export const handler = router.handler({
     }
 })
 ```  
+
+</details>
 
 If CORS is activated, these default headers will be sent on every response:  
     
@@ -214,6 +220,9 @@ SNS Event Structure: https://docs.aws.amazon.com/sns/latest/dg/sns-message-and-j
 
 For handling calls in Lambdas initiated from AWS-SNS you can use the following code snippet:
 
+<details>
+  <summary>SNS to Lambda example</summary>
+
 ```js
 import * as router from 'aws-lambda-router'
 
@@ -231,11 +240,16 @@ export const handler = router.handler({
 })
 ```
 
+</details>
+
 The *records* parameter contains `SNSEventRecord[]`. An exampe event structure can be found [here](lib/event-examples/sns.json). For example you can parse now the  [message attributes of the SNS](https://docs.aws.amazon.com/sns/latest/dg/sns-message-attributes.html) or reads the topic arn of SNS. 
 
 ## SQS to Lambda Integrations
 
 For handling calls in Lambdas initiated from AWS-SQS you can use the following code snippet:
+
+<details>
+  <summary>SQS to Lambda example</summary>
 
 ```js
 import * as router from 'aws-lambda-router'
@@ -260,6 +274,8 @@ export const handler = router.handler({
 })
 ```
 
+</details>
+
 An SQS message always contains an array of records. In each SQS record there is the message in the body JSON key. 
 The `action` method gets all body elements from the router as an array.
 
@@ -282,6 +298,9 @@ A combination of bucketName, eventName and objectKeyPrefix is possible. If no _b
 The action method will be called with the records of the [S3Event Structure](https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html)
 
 The following examples demonstrates the most use cases:
+
+<details>
+  <summary>S3 to Lambda example</summary>
 
 ```js
 import * as router from 'aws-lambda-router'
@@ -338,6 +357,7 @@ export const handler = router.handler({
     }
 })
 ```
+</details>
 
 Per s3 event there can be several records per event. The action methods are called one after the other record. The result of the action method is an array with objects insides.
 
@@ -347,6 +367,9 @@ Per default a status code 200 will be returned. This behavior can be overridden.
 
 By providing a body property in the returned object you can modify the status code and response headers.
 
+<details>
+  <summary>Response example</summary>
+  
 ```js
 return {
         // Allow for custom status codes depending on execution.
@@ -365,6 +388,9 @@ return {
     }
 ```
 
+</details>
+
+
 ## Local developement
 
 The best is to work with ```yarn link```
@@ -380,7 +406,7 @@ Increase version in **package.json** (using [semantic version syntax](https://se
 Thats all.
 
 ## Release History
-* unreleased
+* 0.8.3
    * added records to the SQS (#43) and SNS (#44) action for further processing
 * 0.8.2
    * added support for Open API parameter definitions e.g.: /section/{id}
