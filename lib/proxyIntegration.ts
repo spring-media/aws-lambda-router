@@ -4,14 +4,12 @@ import { ProcessMethod } from './EventProcessor'
 
 type ProxyIntegrationParams = {
   paths?: { [paramId: string]: string }
-}
-type ProxyIntegrationMatchedPath = {
-  matchedPath?: string
+  routePath?: string
 }
 type ProxyIntegrationBody<T = unknown> = {
   body: T
 }
-export type ProxyIntegrationEvent<T = unknown> = Omit<APIGatewayProxyEvent, 'body'> & ProxyIntegrationParams & ProxyIntegrationMatchedPath & ProxyIntegrationBody<T>
+export type ProxyIntegrationEvent<T = unknown> = Omit<APIGatewayProxyEvent, 'body'> & ProxyIntegrationParams & ProxyIntegrationBody<T>
 export type ProxyIntegrationResult = Omit<APIGatewayProxyResult, 'statusCode'> & { statusCode?: APIGatewayProxyResult['statusCode'] }
 
 export interface ProxyIntegrationRoute {
@@ -129,14 +127,14 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
     try {
       const actionConfig = findMatchingActionConfig(event.httpMethod, event.path, proxyIntegrationConfig) || {
         action: NO_MATCHING_ACTION,
-        matchedPath: undefined,
+        routePath: undefined,
         paths: undefined
       }
 
       const proxyEvent: ProxyIntegrationEvent = event
 
       proxyEvent.paths = actionConfig.paths
-      proxyEvent.matchedPath = actionConfig.matchedPath
+      proxyEvent.routePath = actionConfig.routePath
       if (event.body) {
         try {
           proxyEvent.body = JSON.parse(event.body)
@@ -208,7 +206,7 @@ const convertError = (error: ProxyIntegrationError | Error, errorMapping?: Proxy
 }
 
 const findMatchingActionConfig = (httpMethod: string, httpPath: string, routeConfig: ProxyIntegrationConfig):
-  Pick<ProxyIntegrationRoute, 'action'> & ProxyIntegrationMatchedPath & ProxyIntegrationParams | null => {
+  ProxyIntegrationRoute & ProxyIntegrationParams | null => {
 
   const paths: ProxyIntegrationParams['paths'] = {}
   const matchingMethodRoutes = routeConfig.routes.filter(route => route.method === httpMethod)
@@ -226,8 +224,8 @@ const findMatchingActionConfig = (httpMethod: string, httpPath: string, routeCon
         console.log(`Found matching route ${route.path} with paths`, paths)
       }
       return {
-        action: route.action,
-        matchedPath: route.path,
+        ...route,
+        routePath: route.path,
         paths
       }
     }
