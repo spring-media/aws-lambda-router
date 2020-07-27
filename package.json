@@ -1,6 +1,6 @@
 {
-  "name": "@tmap/aws-lambda-router",
-  "version": "1.0.0",
+  "name": "aws-lambda-router",
+  "version": "0.8.3",
   "description": "AWS lambda router",
   "main": "index.js",
   "types": "index.d.ts",
