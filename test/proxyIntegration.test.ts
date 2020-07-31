@@ -1,5 +1,6 @@
 // helper for parameterized tests (http://blog.piotrturski.net/2015/04/jasmine-parameterized-tests.html)
-import { process as proxyIntegration, ProxyIntegrationConfig } from '../lib/proxyIntegration'
+import { ProxyIntegrationConfig, process as proxyIntegration } from '../lib/proxyIntegration'
+
 import { APIGatewayProxyEvent } from 'aws-lambda'
 
 function forEach(arrayOfArrays: any) {
@@ -33,7 +34,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
         { path: '/123', method: 'GET', action: actionSpy }
       ]
     }, { httpMethod: 'GET', path: '/123' } as APIGatewayProxyEvent, context)
-    expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/123', paths: {} }, jasmine.anything())
+    expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/123', paths: {}, routePath: '/123' }, jasmine.anything())
   })
 
   it('should select longer match', () => {
@@ -45,7 +46,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
         { path: '/123', method: 'GET', action: actionSpy }
       ]
     }, { httpMethod: 'GET', path: '/123' } as APIGatewayProxyEvent, context)
-    expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/123', paths: {} }, context)
+    expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/123', paths: {}, routePath: '/123' }, context)
   })
   forEach([
     ['/:param'],
@@ -59,7 +60,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
         { path: path, method: 'GET', action: actionSpy }
       ]
     }, { httpMethod: 'GET', path: '/456' } as APIGatewayProxyEvent, context)
-    expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/456', paths: { param: '456' } }, context)
+    expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/456', routePath: path, paths: { param: '456' } }, context)
   })
   forEach([
     ['/:param'],
@@ -73,7 +74,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
         { path: path, method: 'GET', action: () => 'param' as any }
       ]
     }, { httpMethod: 'GET', path: '/123' } as APIGatewayProxyEvent, context)
-    expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/123', paths: {} }, context)
+    expect(actionSpy).toHaveBeenCalledWith({ httpMethod: 'GET', path: '/123', routePath: '/123', paths: {} }, context)
   })
   forEach([
     ['/:param'],
@@ -90,6 +91,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
     expect(actionSpy).toHaveBeenCalledWith({
       httpMethod: 'GET',
       path: '/%2Fwirtschaft%2Farticle85883...tml',
+      routePath: path,
       paths: { param: '/wirtschaft/article85883...tml' }
     }, context)
   })
@@ -106,6 +108,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
     expect(actionSpy).toHaveBeenCalledWith({
       httpMethod: 'GET',
       path: '/%2Fdeutschland-bewegt-sich%2F',
+      routePath: path,
       paths: { param: '/deutschland-bewegt-sich/' }
     }, context)
   })
@@ -125,6 +128,7 @@ describe('proxyIntegration.routeHandler.selection', () => {
     expect(actionSpy).toHaveBeenCalledWith({
       httpMethod: 'GET',
       path: '/%2Fboerse%2FResources%2FImages%2Fcss%2Farrows_change-2.0.1.png?rfid=2013011501',
+      routePath: path,
       paths: { param: '/boerse/Resources/Images/css/arrows_change-2.0.1.png?rfid=2013011501' }
     }, context)
   })
@@ -178,7 +182,7 @@ describe('proxyIntegration.routeHandler', () => {
     }, event as any, context as any)
 
     expect(actionSpy).toHaveBeenCalledWith({
-      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: '/', paths: {}
+      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: '/', routePath: '/', paths: {}
     }, context)
   })
 
@@ -197,7 +201,7 @@ describe('proxyIntegration.routeHandler', () => {
       }]
     }, event as any, context)
     expect(actionSpy).toHaveBeenCalledWith({
-      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: '/', paths: {}
+      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: '/', routePath: '/', paths: {}
     }, context)
   })
   it('should remove basepath from multi-slash-path if coming over custom domain name', () => {
@@ -219,6 +223,7 @@ describe('proxyIntegration.routeHandler', () => {
       headers: jasmine.anything(),
       requestContext: jasmine.anything(),
       path: '/123/456',
+      routePath: '/123/456',
       paths: {}
     }, context)
   })
@@ -299,7 +304,7 @@ describe('proxyIntegration.routeHandler', () => {
       ]
     }
     await proxyIntegration(routeConfig, { path, httpMethod: 'GET' } as APIGatewayProxyEvent, context)
-    expect(spiedAction).toHaveBeenCalledWith({ path, httpMethod: 'GET', paths: expectedPathValues }, context)
+    expect(spiedAction).toHaveBeenCalledWith({ path, httpMethod: 'GET', paths: expectedPathValues, routePath: pathConfig }, context)
   })
 
 
@@ -446,6 +451,7 @@ describe('proxyIntegration.proxyPath', () => {
       resource: '/{apiPath+}',
       paths: {},
       path: '/article/list',
+      routePath: '/article/list',
       httpMethod: 'GET',
       pathParameters: { apiPath: '/article/list' }
     }, context)
@@ -485,6 +491,7 @@ describe('proxyIntegration.proxyPath', () => {
       resource: '/{apiPath+}',
       paths: {},
       path: '/article/list',
+      routePath: '/article/list',
       httpMethod: 'GET',
       pathParameters: { apiPath: '/article/list' }
     }, context)
@@ -500,6 +507,7 @@ describe('proxyIntegration.proxyPath', () => {
       resource: '/{apiPath+}',
       paths: {},
       path: '/section/list',
+      routePath: '/section/list',
       httpMethod: 'GET',
       pathParameters: { apiPath: '/section/list' }
     }, context)
@@ -603,6 +611,7 @@ const assertPathIsUnchanged = async (hostname: string) => {
     headers: jasmine.anything(),
     requestContext: jasmine.anything(),
     path: '/123/456',
+    routePath: '/123/456',
     paths: {}
   }, context)
 }
