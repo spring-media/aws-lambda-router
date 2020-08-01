@@ -206,7 +206,7 @@ function doThrowAnException(body) {
 }
 ``` 
 
-With the key word `errorMapping` shown in the example above you can custom mapping of thrown errors to http response code error.
+With the key word `errorMapping` shown in the example above you can adjust the assignment of thrown errors to http response code error.
 The action can throw an object like
 
     "throw {reason: 'NotFound', message: 'object id not found'}"
@@ -406,6 +406,8 @@ Increase version in **package.json** (using [semantic version syntax](https://se
 Thats all.
 
 ## Release History
+* 0.8.4
+   * proxyIntegration: expose route path (#49) (thanks to [@evgenykireev  ](https://github.com/evgenykireev))
 * 0.8.3
    * added records to the SQS (#43) and SNS (#44) action for further processing
 * 0.8.2
