@@ -290,7 +290,5 @@ describe('CORS', () => {
       'Access-Control-Max-Age': '8600',
       'Access-Control-Expose-Headers': 'Header1,Header2'
     })
-
-
   })
 })
