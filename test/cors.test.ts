@@ -278,7 +278,8 @@ describe('CORS', () => {
       credentials: true,
       maxAge: 8600
     } as CorsOptions, {
-      headers: {        origin: 'https://test.example.com',
+      headers: {        
+        origin: 'https://test.example.com',
       } as any
     } as APIGatewayProxyEvent)
     expect(headers).toEqual({
