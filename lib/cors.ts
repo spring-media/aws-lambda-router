@@ -1,12 +1,12 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
 
-
 type HeaderKeyValue = {
   key: string,
   value: any
 }
 
 type HeaderObject = Array<HeaderKeyValue>
+
 type CorsOrigin = string | boolean | RegExp | Array<RegExp | string> | Function| undefined
 
 export interface CorsOptions {
@@ -22,26 +22,26 @@ const defaults = {
   origin: '*',
   methods: 'GET,POST,PUT,DELETE,HEAD,PATCH',
   allowedHeaders: 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-};
+}
 
 function isString(s: any) {
-  return typeof s === 'string' || s instanceof String;
+  return typeof s === 'string' || s instanceof String
 }
 
 const isOriginAllowed = (origin: string, allowedOrigin: CorsOrigin): boolean => {
   if (Array.isArray(allowedOrigin)) {
     for (var i = 0; i < allowedOrigin.length; ++i) {
       if (isOriginAllowed(origin, allowedOrigin[i])) {
-        return true;
+        return true
       }
     }
-    return false;
+    return false
   } else if (isString(allowedOrigin)) {
-    return origin === allowedOrigin;
+    return origin === allowedOrigin
   } else if (allowedOrigin instanceof RegExp) {
-    return allowedOrigin.test(origin);
+    return allowedOrigin.test(origin)
   } else {
-    return !!allowedOrigin;
+    return !!allowedOrigin
   }
 }
 
@@ -53,45 +53,44 @@ const configureOrigin = (options: CorsOptions, event: APIGatewayProxyEvent): Hea
     headers.push({
       key: 'Access-Control-Allow-Origin',
       value: '*'
-    });
+    })
   } else if(isString(origin)) {
     headers.push({
       key: 'Access-Control-Allow-Origin',
       value: origin
-    });
+    })
     headers.push({
       key: 'Vary',
       value: 'Origin'
-    });
+    })
   } else if(typeof origin === 'function') {
     headers.push({
       key: 'Access-Control-Allow-Origin',
       value: origin(event)
-    });
+    })
     headers.push({
       key: 'Vary',
       value: 'Origin'
-    });
-
+    })
   } else {
     const requestOrigin: string = event.headers.origin
-    const isAllowed: boolean = isOriginAllowed(requestOrigin, origin);
+    const isAllowed: boolean = isOriginAllowed(requestOrigin, origin)
 
     headers.push({
       key: 'Access-Control-Allow-Origin',
       value: isAllowed ? requestOrigin : false
-    });
+    })
     headers.push({
       key: 'Vary',
       value: 'Origin'
-    });
+    })
   }
 
   return headers
 }
 
 const configureMethods = (options: CorsOptions): HeaderObject => {
-  const { methods } = options;
+  const { methods } = options
 
   return [{
     key: 'Access-Control-Allow-Methods',
@@ -100,7 +99,7 @@ const configureMethods = (options: CorsOptions): HeaderObject => {
 }
 
 const configureAllowedHeaders = (options: CorsOptions, event: APIGatewayProxyEvent): HeaderObject => {
-  let { allowedHeaders } = options;
+  let { allowedHeaders } = options
   const headers = []
 
   if (!allowedHeaders) {
@@ -117,10 +116,10 @@ const configureAllowedHeaders = (options: CorsOptions, event: APIGatewayProxyEve
     headers.push({
       key: 'Access-Control-Allow-Headers',
       value: allowedHeaders
-    });
+    })
   }
 
-  return headers;
+  return headers
 }
 
 const configureExposedHeaders = (options: CorsOptions): HeaderObject => {
@@ -142,7 +141,7 @@ const configureExposedHeaders = (options: CorsOptions): HeaderObject => {
 
 
 const configureAllowMaxAge = (options: CorsOptions): HeaderObject => {
-  const { maxAge } = options;
+  const { maxAge } = options
 
   return !maxAge ? [] : [
     {
@@ -164,7 +163,7 @@ const configureCredentials = (options: CorsOptions): HeaderObject  => {
 }
 
 const generateHeaders = (headersArray: Array<HeaderObject> ) => {
-  const vary: string[] = [];
+  const vary: string[] = []
   let headers: any = {}
 
   headersArray.forEach((header: HeaderObject) => {
@@ -172,7 +171,7 @@ const generateHeaders = (headersArray: Array<HeaderObject> ) => {
       if (h.key === 'Vary' && h.value) {
         vary.push(h.value)
       } else {
-        headers = {...headers, [h.key]: h.value} 
+        headers[h.key] = h.value
       }
     })
   })
@@ -189,22 +188,16 @@ export const addCorsHeaders = (options: CorsOptions | boolean, event: APIGateway
   }
 
   const corsOptions = Object.assign({}, defaults, typeof options === 'object' ? options : {})
-  // console.log(corsOptions)
-  const headers = [];
+  const headers = []
   
   headers.push(configureOrigin(corsOptions, event))
   headers.push(configureExposedHeaders(corsOptions))
   headers.push(configureCredentials(corsOptions))
 
-  // These 3 are the only ones needed for the options request but 
-  // passing all for backwards compatibility
-  // if (event.httpMethod === 'OPTIONS') {
   headers.push(configureMethods(corsOptions))
   headers.push(configureAllowedHeaders(corsOptions, event))
   headers.push(configureAllowMaxAge(corsOptions))  
-  // }
-  const h = generateHeaders(headers);
-  // console.log(h)
-  return h
+
+  return generateHeaders(headers)
 }
 

@@ -1,5 +1,5 @@
 
-import { addCorsHeaders, CorsOptions } from '../lib/cors';
+import { addCorsHeaders, CorsOptions } from '../lib/cors'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 
 describe('CORS', () => {
