@@ -143,8 +143,7 @@ describe('CORS', () => {
         origin: ['https://example.com', 'https://hostname.com']
       }, {
         headers: {
-          origin: 'https://example.com',
-          body: {},
+          origin: 'https://example.com'
         } as any
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
@@ -159,8 +158,7 @@ describe('CORS', () => {
         origin: ['https://example.com', 'https://hostname.com']
       }, {
         headers: {
-          origin: 'https://notallowed.com',
-          body: {},
+          origin: 'https://notallowed.com'
         } as any
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
@@ -175,8 +173,7 @@ describe('CORS', () => {
         origin: /example\.com$/
       }, {
         headers: {
-          origin: 'https://example.com',
-          body: {},
+          origin: 'https://example.com'
         } as any
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
@@ -191,8 +188,7 @@ describe('CORS', () => {
         origin: /example\.com$/
       }, {
         headers: {
-          origin: 'https://noteallowed.com',
-          body: {},
+          origin: 'https://noteallowed.com'
         } as any
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
@@ -207,12 +203,49 @@ describe('CORS', () => {
         origin: /example\.com$/
       }, {
         headers: {
-          origin: 'https://test.example.com',
-          body: {},
+          origin: 'https://test.example.com'
         } as any
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': 'https://test.example.com',
+        'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,HEAD,PATCH',
+        'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+        'Vary': 'Origin'
+      })
+    })
+    it('should set Access-Control-Allow-Origin header when passed a function as the origin', () => {
+      const headers = addCorsHeaders({
+        origin(event: APIGatewayProxyEvent) {
+          if (event.headers.origin === 'https://test.example.com'){
+            return event.headers.origin
+          }
+          return false
+        }
+      }, {
+        headers: {
+          origin: 'https://test.example.com'
+        } as any} as APIGatewayProxyEvent)
+      expect(headers).toEqual({
+        'Access-Control-Allow-Origin': 'https://test.example.com',
+        'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,HEAD,PATCH',
+        'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+        'Vary': 'Origin'
+      })
+    })
+    it('should set Access-Control-Allow-Origin header to false when passed a function as the origin and it does not match', () => {
+      const headers = addCorsHeaders({
+        origin(event: APIGatewayProxyEvent) {
+          if (event.headers.origin === 'https://test.example.com') {
+            return event.headers.origin
+          }
+          return false
+        }
+      }, {
+        headers: {
+          origin: 'https://not-allowed-origin.com'
+        } as any} as APIGatewayProxyEvent)
+      expect(headers).toEqual({
+        'Access-Control-Allow-Origin': false,
         'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,HEAD,PATCH',
         'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
         'Vary': 'Origin'
@@ -224,8 +257,7 @@ describe('CORS', () => {
         origin: [ /example\.com$/, 'http://test.com' ]
       } as CorsOptions, {
         headers: {
-          origin: 'https://test.example.com',
-          body: {},
+          origin: 'https://test.example.com'
         } as any
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
@@ -246,9 +278,7 @@ describe('CORS', () => {
       credentials: true,
       maxAge: 8600
     } as CorsOptions, {
-      headers: {
-        origin: 'https://test.example.com',
-        body: {},
+      headers: {        origin: 'https://test.example.com',
       } as any
     } as APIGatewayProxyEvent)
     expect(headers).toEqual({

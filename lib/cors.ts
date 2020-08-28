@@ -7,7 +7,7 @@ type HeaderKeyValue = {
 }
 
 type HeaderObject = Array<HeaderKeyValue>
-type CorsOrigin = string | boolean | RegExp | Array<RegExp | string> | undefined
+type CorsOrigin = string | boolean | RegExp | Array<RegExp | string> | Function| undefined
 
 export interface CorsOptions {
   origin?: CorsOrigin
@@ -63,6 +63,16 @@ const configureOrigin = (options: CorsOptions, event: APIGatewayProxyEvent): Hea
       key: 'Vary',
       value: 'Origin'
     });
+  } else if(typeof origin === 'function') {
+    headers.push({
+      key: 'Access-Control-Allow-Origin',
+      value: origin(event)
+    });
+    headers.push({
+      key: 'Vary',
+      value: 'Origin'
+    });
+
   } else {
     const requestOrigin: string = event.headers.origin
     const isAllowed: boolean = isOriginAllowed(requestOrigin, origin);
