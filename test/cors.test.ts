@@ -144,7 +144,7 @@ describe('CORS', () => {
       }, {
         headers: {
           origin: 'https://example.com'
-        } as any
+        } as APIGatewayProxyEvent['headers']
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': 'https://example.com',
@@ -159,7 +159,7 @@ describe('CORS', () => {
       }, {
         headers: {
           origin: 'https://notallowed.com'
-        } as any
+        } as APIGatewayProxyEvent['headers']
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': false,
@@ -174,7 +174,7 @@ describe('CORS', () => {
       }, {
         headers: {
           origin: 'https://example.com'
-        } as any
+        } as APIGatewayProxyEvent['headers']
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': 'https://example.com',
@@ -189,7 +189,7 @@ describe('CORS', () => {
       }, {
         headers: {
           origin: 'https://noteallowed.com'
-        } as any
+        } as APIGatewayProxyEvent['headers']
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': false,
@@ -204,7 +204,7 @@ describe('CORS', () => {
       }, {
         headers: {
           origin: 'https://test.example.com'
-        } as any
+        } as APIGatewayProxyEvent['headers']
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': 'https://test.example.com',
@@ -224,7 +224,8 @@ describe('CORS', () => {
       }, {
         headers: {
           origin: 'https://test.example.com'
-        } as any} as APIGatewayProxyEvent)
+        } as APIGatewayProxyEvent['headers']
+      } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': 'https://test.example.com',
         'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,HEAD,PATCH',
@@ -243,7 +244,8 @@ describe('CORS', () => {
       }, {
         headers: {
           origin: 'https://not-allowed-origin.com'
-        } as any} as APIGatewayProxyEvent)
+        } as APIGatewayProxyEvent['headers']
+      } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': false,
         'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,HEAD,PATCH',
@@ -258,7 +260,7 @@ describe('CORS', () => {
       } as CorsOptions, {
         headers: {
           origin: 'https://test.example.com'
-        } as any
+        } as APIGatewayProxyEvent['headers']
       } as APIGatewayProxyEvent)
       expect(headers).toEqual({
         'Access-Control-Allow-Origin': 'https://test.example.com',
@@ -280,7 +282,7 @@ describe('CORS', () => {
     } as CorsOptions, {
       headers: {        
         origin: 'https://test.example.com',
-      } as any
+      } as APIGatewayProxyEvent['headers']
     } as APIGatewayProxyEvent)
     expect(headers).toEqual({
       'Access-Control-Allow-Origin': 'https://test.example.com',
