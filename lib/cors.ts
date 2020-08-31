@@ -58,8 +58,7 @@ const configureOrigin = (options: CorsOptions, event: APIGatewayProxyEvent): Hea
     headers.push({
       key: 'Access-Control-Allow-Origin',
       value: origin
-    })
-    headers.push({
+    }, {
       key: 'Vary',
       value: 'Origin'
     })
@@ -67,8 +66,7 @@ const configureOrigin = (options: CorsOptions, event: APIGatewayProxyEvent): Hea
     headers.push({
       key: 'Access-Control-Allow-Origin',
       value: origin(event)
-    })
-    headers.push({
+    }, {
       key: 'Vary',
       value: 'Origin'
     })
@@ -79,8 +77,7 @@ const configureOrigin = (options: CorsOptions, event: APIGatewayProxyEvent): Hea
     headers.push({
       key: 'Access-Control-Allow-Origin',
       value: isAllowed ? requestOrigin : false
-    })
-    headers.push({
+    }, {
       key: 'Vary',
       value: 'Origin'
     })
@@ -146,7 +143,7 @@ const configureAllowMaxAge = (options: CorsOptions): HeaderObject => {
   return !maxAge ? [] : [
     {
       key: 'Access-Control-Max-Age',
-      value: maxAge + ''
+      value: `${maxAge}`
     }
   ]
 }
@@ -164,7 +161,7 @@ const configureCredentials = (options: CorsOptions): HeaderObject  => {
 
 const generateHeaders = (headersArray: Array<HeaderObject> ) => {
   const vary: string[] = []
-  let headers: any = {}
+  const headers: any = {}
 
   headersArray.forEach((header: HeaderObject) => {
     header.forEach((h: HeaderKeyValue) => {
@@ -188,16 +185,13 @@ export const addCorsHeaders = (options: CorsOptions | boolean, event: APIGateway
   }
 
   const corsOptions = Object.assign({}, defaults, typeof options === 'object' ? options : {})
-  const headers = []
   
-  headers.push(configureOrigin(corsOptions, event))
-  headers.push(configureExposedHeaders(corsOptions))
-  headers.push(configureCredentials(corsOptions))
-
-  headers.push(configureMethods(corsOptions))
-  headers.push(configureAllowedHeaders(corsOptions, event))
-  headers.push(configureAllowMaxAge(corsOptions))  
-
-  return generateHeaders(headers)
+  return generateHeaders([
+    configureOrigin(corsOptions, event),
+    configureExposedHeaders(corsOptions),
+    configureCredentials(corsOptions),
+    configureMethods(corsOptions),
+    configureAllowedHeaders(corsOptions, event),
+    configureAllowMaxAge(corsOptions)
+  ])
 }
-
