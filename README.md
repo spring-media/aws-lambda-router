@@ -193,6 +193,33 @@ To customize CORS for all routes pass any of the following options to the `proxy
 * `maxAge`: Configures the **Access-Control-Max-Age** CORS header. Set to an integer to pass the header, otherwise it is omitted.
 
 
+<details>
+  <summary>Customize CORS example</summary>
+
+```js
+import * as router from 'aws-lambda-router'
+
+export const handler = router.handler({
+    // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
+    proxyIntegration: {
+        cors: {
+          origin: 'https://test.example.com', // Only allow CORS request from this url
+          methods: ['GET', 'POST', 'PUT']     // Only allow these HTTP methods to make requests
+        },
+        routes: [
+            {
+                path: '/graphql',
+                method: 'POST',
+                // provide a function to be called with the appropriate data
+                action: (request, context) => doAnything(request.body)
+            }
+        ]
+    }
+})
+```  
+
+</details>
+
 ## Error mapping
 
 ```js
