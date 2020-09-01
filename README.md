@@ -147,7 +147,7 @@ See the following example:
 
 
 <details>
-  <summary>CORS example</summary>
+  <summary>Default CORS example</summary>
 
 ```js
 import * as router from 'aws-lambda-router'
@@ -176,6 +176,49 @@ If CORS is activated, these default headers will be sent on every response:
     "Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,HEAD,PATCH'"
     "Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
 
+### Customizing CORS
+
+To customize CORS for all routes pass any of the following options to the `proxyIntegration` `cors` property.  If a property is not set then it will default to the above default CORS headers.
+
+* `origin`: Configures the **Access-Control-Allow-Origin** CORS header. Possible values:
+  - `Boolean` - set `origin` to `true` to reflect the request origin or set it to `false` to disable CORS.
+  - `String` - set `origin` to a specific origin. For example if you set it to `"http://example.com"` only requests from "http://example.com" will be allowed.
+  - `RegExp` - set `origin` to a regular expression pattern which will be used to test the request origin. If it's a match, the request origin will be reflected. For example the pattern `/example\.com$/` will reflect any request that is coming from an origin ending with "example.com".
+  - `Array` - set `origin` to an array of valid origins. Each origin can be a `String` or a `RegExp`. For example `["http://example1.com", /\.example2\.com$/]` will accept any request from "http://example1.com" or from a subdomain of "example2.com".
+  - `Function` - set `origin` to a function to be evaluated.  The function will get passed the `APIGatewayProxyEvent` and must return the allowed origin or `false` 
+* `methods`: Configures the **Access-Control-Allow-Methods** CORS header. Expects a comma-delimited string (ex: 'GET,PUT,POST') or an array (ex: `['GET', 'PUT', 'POST']`).
+* `allowedHeaders`: Configures the **Access-Control-Allow-Headers** CORS header. Expects a comma-delimited string (ex: 'Content-Type,Authorization') or an array (ex: `['Content-Type', 'Authorization']`). If not specified, defaults to reflecting the headers specified in the request's **Access-Control-Request-Headers** header.
+* `exposedHeaders`: Configures the **Access-Control-Expose-Headers** CORS header. Expects a comma-delimited string (ex: 'Content-Range,X-Content-Range') or an array (ex: `['Content-Range', 'X-Content-Range']`). If not specified, no custom headers are exposed.
+* `credentials`: Configures the **Access-Control-Allow-Credentials** CORS header. Set to `true` to pass the header, otherwise it is omitted.
+* `maxAge`: Configures the **Access-Control-Max-Age** CORS header. Set to an integer to pass the header, otherwise it is omitted.
+
+
+<details>
+  <summary>Customize CORS example</summary>
+
+```js
+import * as router from 'aws-lambda-router'
+
+export const handler = router.handler({
+    // for handling an http-call from an AWS Apigateway proxyIntegration we provide the following config:
+    proxyIntegration: {
+        cors: {
+          origin: 'https://test.example.com', // Only allow CORS request from this url
+          methods: ['GET', 'POST', 'PUT']     // Only allow these HTTP methods to make requests
+        },
+        routes: [
+            {
+                path: '/graphql',
+                method: 'POST',
+                // provide a function to be called with the appropriate data
+                action: (request, context) => doAnything(request.body)
+            }
+        ]
+    }
+})
+```  
+
+</details>
 
 ## Error mapping
 

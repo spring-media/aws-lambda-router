@@ -1,6 +1,7 @@
 import { APIGatewayEventRequestContext, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { ProcessMethod } from './EventProcessor'
+import { addCorsHeaders, CorsOptions } from './cors';
 
 type ProxyIntegrationParams = {
   paths?: { [paramId: string]: string }
@@ -34,7 +35,7 @@ export type ProxyIntegrationError = {
 }
 
 export interface ProxyIntegrationConfig {
-  cors?: boolean
+  cors?: CorsOptions | boolean
   routes: ProxyIntegrationRoute[]
   debug?: boolean
   errorMapping?: ProxyIntegrationErrorMapping
@@ -47,13 +48,6 @@ const NO_MATCHING_ACTION = (request: ProxyIntegrationEvent) => {
     reason: 'NO_MATCHING_ACTION',
     message: `Could not find matching action for ${request.path} and method ${request.httpMethod}`
   }
-}
-
-const addCorsHeaders = (toAdd: APIGatewayProxyResult['headers'] = {}) => {
-  toAdd['Access-Control-Allow-Origin'] = '*'
-  toAdd['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,HEAD,PATCH'
-  toAdd['Access-Control-Allow-Headers'] = 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-  return toAdd
 }
 
 const processActionAndReturn = async (actionConfig: Pick<ProxyIntegrationRoute, 'action'>, event: ProxyIntegrationEvent,
@@ -97,17 +91,15 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
       return null
     }
 
-    const headers: APIGatewayProxyResult['headers'] = {}
-    if (proxyIntegrationConfig.cors) {
-      addCorsHeaders(headers)
-      if (event.httpMethod === 'OPTIONS') {
-        return Promise.resolve({
-          statusCode: 200,
-          headers,
-          body: ''
-        })
-      }
+    if (event.httpMethod === 'OPTIONS') {
+      return Promise.resolve({
+        statusCode: 200,
+        headers: proxyIntegrationConfig.cors ? addCorsHeaders(proxyIntegrationConfig.cors, event) : {},
+        body: ''
+      })
     }
+
+    const headers: APIGatewayProxyResult['headers'] = proxyIntegrationConfig.cors ? addCorsHeaders(proxyIntegrationConfig.cors, event) : {};
     Object.assign(headers, { 'Content-Type': 'application/json' }, proxyIntegrationConfig.defaultHeaders)
 
     // assure necessary values have sane defaults:
@@ -188,14 +180,14 @@ const convertError = (error: ProxyIntegrationError | Error, errorMapping?: Proxy
     return {
       statusCode: error.statusCode,
       body: JSON.stringify({ message: error.message, error: error.statusCode }),
-      headers: addCorsHeaders({})
+      headers: addCorsHeaders({}, {} as APIGatewayProxyEvent)
     }
   }
   try {
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'ServerError', message: `Generic error:${JSON.stringify(error)}` }),
-      headers: addCorsHeaders({})
+      headers: addCorsHeaders({}, {} as APIGatewayProxyEvent)
     }
   } catch (stringifyError) { }
 
