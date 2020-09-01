@@ -449,51 +449,5 @@ Increase version in **package.json** (using [semantic version syntax](https://se
 Thats all.
 
 ## Release History
-* 0.8.4
-   * proxyIntegration: expose route path (#49) (thanks to [@evgenykireev  ](https://github.com/evgenykireev))
-* 0.8.3
-   * added records to the SQS (#43) and SNS (#44) action for further processing
-* 0.8.2
-   * added support for Open API parameter definitions e.g.: /section/{id}
-* 0.8.1
-   * fix: changed ProxyIntegrationEvent body type to be generic but defaults to unknown
-   * fix: changed @types/aws-lambda from devDependency to dependency
-   * **breaking**: error response objects (thrown or rejected) now need to set `statusCode` instead of `status` (consistent with response)
-* 0.7.1
-   * code style cleanup
-   * fix: hosted package on npmjs should now worked
-* 0.7.0 
-   * migrate to typescript
-   * using @types/aws-lambda typings
-   * proxyIntegration: cors is now optional (default: false)
-   * removed use of aws lambda handler callback function (using Promise instead)
-   * experimental _proxy path support_ (thanks to [@swaner](https://github.com/swaner))
-* 0.6.2 
-  * take away old gulp dependency to run tests, works now with scripts in package.json
-  * normalize request path to start from local host (thanks to [@napicella](https://github.com/napicella))
-* 0.6.1 
-  * s3: fix: aggregate result promises to one promise; 
-  * s3: s3Route interface
-* 0.6.0 
-  * new feature: S3 routes available. 
-* 0.5.0 
-  * new feature: SQS route integration now available; 
-  * bugfix: SNS integration now works with Array of message instead of single message
-* 0.4.0 
-  * now [the Context Object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html) pass through
-* 0.3.1 proxyIntegration: 
-  * avoid error if response object is not set; 
-  * add some debug logging
-* 0.3.0 
-  * proxyIntegration: add PATCH method; 
-  * allow for custom status codes from route (thanks to [@mintuz](https://github.com/mintuz))
-* 0.2.2 
-  * proxyIntegration: set correct header values now for CORS
-* 0.2.1 
-  * proxyIntegration: CORS in Preflight, status code 400 for invalid body, set more CORS headers as default
-* 0.2.0 *Attention*: breaking changes for configuration; 
-  * add SNS event process
-* 0.1.0 
-  * make it work now
-* 0.0.1
-  *  initial release
+
+see [CHANGELOG.md](CHANGELOG.md)
