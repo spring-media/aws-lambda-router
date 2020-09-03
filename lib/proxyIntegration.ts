@@ -91,17 +91,19 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
       return null
     }
 
+    const headers: APIGatewayProxyResult['headers'] = proxyIntegrationConfig.cors ? addCorsHeaders(proxyIntegrationConfig.cors, event) : {};
+    
     if (event.httpMethod === 'OPTIONS') {
+      Object.assign(headers, proxyIntegrationConfig.defaultHeaders)
       return Promise.resolve({
         statusCode: 200,
-        headers: proxyIntegrationConfig.cors ? addCorsHeaders(proxyIntegrationConfig.cors, event) : {},
+        headers,
         body: ''
       })
     }
 
-    const headers: APIGatewayProxyResult['headers'] = proxyIntegrationConfig.cors ? addCorsHeaders(proxyIntegrationConfig.cors, event) : {};
     Object.assign(headers, { 'Content-Type': 'application/json' }, proxyIntegrationConfig.defaultHeaders)
-
+    
     // assure necessary values have sane defaults:
     const errorMapping = proxyIntegrationConfig.errorMapping || {}
     errorMapping['NO_MATCHING_ACTION'] = 404
