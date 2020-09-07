@@ -330,6 +330,27 @@ describe('proxyIntegration.routeHandler', () => {
     })
   })
 
+  it('should return default headers to OPTIONS request without content-type', async () => {
+    const routeConfig: ProxyIntegrationConfig = {
+      defaultHeaders: { 'a': '1', 'b': '2' },
+      routes: [
+        {
+          method: 'OPTIONS',
+          path: '/',
+          action: () => ({}) as any
+        }
+      ]
+    }
+    const result = await proxyIntegration(routeConfig, {
+      path: '/',
+      httpMethod: 'OPTIONS'
+    } as APIGatewayProxyEvent, context)
+    expect(result).toEqual({
+      statusCode: 200,
+      headers: { 'a': '1', 'b': '2' },
+      body: ''
+    })
+  })
 
   it('should return error headers', async () => {
     const routeConfig = {
