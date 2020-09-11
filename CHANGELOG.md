@@ -1,3 +1,6 @@
+### 0.9.1 (September 11, 2020)
+  * proxyIntegration: Allow defaultHeaders to be added to the OPTIONS request (#53) (thanks again to [@TerryMooreII  ](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
+
 ### 0.9.0 (September 01, 2020)
   * proxyIntegration: Adds customizable CORS configurations (#52) (thanks to [@TerryMooreII  ](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
 
