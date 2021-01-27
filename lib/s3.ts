@@ -18,7 +18,9 @@ export interface S3Config {
 const validateArguments = (s3Config: S3Config, event: S3Event) => {
 
   if (!Array.isArray(event.Records) || event.Records.length < 1 || event.Records[0].eventSource !== 'aws:s3') {
-    console.log('Event does not look like S3')
+    if (s3Config.debug) {
+      console.log('Event does not look like S3')
+    }
     return false
   }
 

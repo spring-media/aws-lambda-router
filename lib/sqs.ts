@@ -21,7 +21,9 @@ export const process: ProcessMethod<SqsConfig, SqsEvent, Context, any> = (sqsCon
   }
 
   if (!Array.isArray(event.Records) || event.Records.length < 1 || event.Records[0].eventSource !== 'aws:sqs') {
-    console.log('Event does not look like SQS')
+    if(sqsConfig.debug) {
+      console.log('Event does not look like SQS')
+    }
     return null
   }
 
