@@ -21,7 +21,9 @@ export const process: ProcessMethod<SnsConfig, SnsEvent, Context, any> = (snsCon
   }
 
   if (!Array.isArray(event.Records) || event.Records.length < 1 || !event.Records[0].Sns) {
-    console.log('Event does not look like SNS')
+    if(snsConfig.debug) {
+      console.log('Event does not look like SNS')
+    }
     return null
   }
 
