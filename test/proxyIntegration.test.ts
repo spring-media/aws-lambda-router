@@ -637,3 +637,54 @@ const assertPathIsUnchanged = async (hostname: string) => {
   }, context)
 }
 
+describe('proxyIntegration.onError', () => {
+  it('should allow Promised proxyresult', async () => {
+    const proxyConfig : ProxyIntegrationConfig = {
+      routes: [{
+        method: 'GET',
+        path: '/',
+        action: () => {
+          throw Error('Test error')
+        }
+      }],
+      onError: (error) => {
+        return {
+          body: '{"message":"doof","error":"myError"}',
+          statusCode: 599
+        }
+      }
+    }
+
+    const result = await proxyIntegration(proxyConfig, {
+      body: '{}',
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
+    expect(result).toEqual({
+      body: '{"message":"doof","error":"myError"}',
+      statusCode: 599,
+    })
+  })
+  it('should allow Promised void', async () => {
+    const sectionOnError = jasmine.createSpy('onError')
+    const proxyConfig : ProxyIntegrationConfig = {
+      routes: [{
+        method: 'GET',
+        path: '/',
+        action: () =>  { throw Error('Error') }
+      }],
+      onError: sectionOnError,
+    }
+
+    const result = await proxyIntegration(proxyConfig, {
+      body: '{}',
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
+    expect(sectionOnError).toBeCalledTimes(1)
+    if(!result) {
+      fail('result is expected to have a value')
+    }
+    expect(result.statusCode).toEqual(500)
+  })
+})

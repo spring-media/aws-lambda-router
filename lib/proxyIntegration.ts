@@ -10,6 +10,7 @@ type ProxyIntegrationParams = {
 type ProxyIntegrationBody<T = unknown> = {
   body: T
 }
+type ErrorHandler = (error?: Error, request?: APIGatewayProxyEvent, context?: APIGatewayEventRequestContext) => Promise<APIGatewayProxyResult | void> | APIGatewayProxyResult | void
 export type ProxyIntegrationEvent<T = unknown> = Omit<APIGatewayProxyEvent, 'body'> & ProxyIntegrationParams & ProxyIntegrationBody<T>
 export type ProxyIntegrationResult = Omit<APIGatewayProxyResult, 'statusCode'> & { statusCode?: APIGatewayProxyResult['statusCode'] }
 
@@ -35,6 +36,7 @@ export type ProxyIntegrationError = {
 }
 
 export interface ProxyIntegrationConfig {
+  onError?: ErrorHandler
   cors?: CorsOptions | boolean
   routes: ProxyIntegrationRoute[]
   debug?: boolean
@@ -141,12 +143,31 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
           }
         }
       }
-      return processActionAndReturn(actionConfig, proxyEvent, context, headers).catch(error => {
+      return processActionAndReturn(actionConfig, proxyEvent, context, headers).catch(async (error) => {
         console.log('Error while handling action function.', error)
+        if (proxyIntegrationConfig.onError) {
+          const result = await proxyIntegrationConfig.onError(error, event, context)
+          if (result != undefined) {
+            return result
+          }
+        }
+
         return convertError(error, errorMapping, headers)
       })
     } catch (error) {
       console.log('Error while evaluating matching action handler', error)
+
+      if (proxyIntegrationConfig.onError) {
+          const promise = proxyIntegrationConfig.onError(error, event, context)
+          Promise.resolve(promise).then(result => {
+          if (result != undefined) {
+            return result
+          }
+          
+          return convertError(error, errorMapping, headers)
+        })
+      }
+
       return convertError(error, errorMapping, headers)
     }
   }
