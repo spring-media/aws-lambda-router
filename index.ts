@@ -66,7 +66,7 @@ export const handler = (routeConfig: RouteConfig) => {
 const extractEventProcessorMapping = (routeConfig: RouteConfig) => {
   const processorMap = new Map<string, EventProcessor>()
   for (const key of Object.keys(routeConfig)) {
-    if (key === 'debug') {
+    if (key === 'debug' || key === 'onError') {
       continue
     }
     try {
