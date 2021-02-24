@@ -11,7 +11,10 @@ export interface RouteConfig {
   sqs?: SqsConfig
   s3?: S3Config
   debug?: boolean
+  onError?: ErrorHandler
 }
+
+export type ErrorHandler<TContext extends Context = Context> = (error?: Error, event?: RouterEvent, context?: TContext) => Promise<any> | any | void
 
 export type RouterEvent = ProxyIntegrationEvent | SnsEvent | SqsEvent | S3Event
 
@@ -47,6 +50,12 @@ export const handler = (routeConfig: RouteConfig) => {
         if (error.stack) {
           console.log(error.stack)
         }
+        if (routeConfig.onError) {
+          const result = await routeConfig.onError(error, event, context)
+          if (result) {
+            return result
+          }
+        }
         throw error.toString()
       }
     }
@@ -57,7 +66,7 @@ export const handler = (routeConfig: RouteConfig) => {
 const extractEventProcessorMapping = (routeConfig: RouteConfig) => {
   const processorMap = new Map<string, EventProcessor>()
   for (const key of Object.keys(routeConfig)) {
-    if (key === 'debug') {
+    if (key === 'debug' || key === 'onError') {
       continue
     }
     try {
