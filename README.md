@@ -1,5 +1,5 @@
 
-# AWS Lambda Router [![Build Status](https://travis-ci.org/spring-media/aws-lambda-router.svg?branch=master)](https://travis-ci.org/spring-media/aws-lambda-router)
+# AWS Lambda Router [![Build Status](https://travis-ci.com/spring-media/aws-lambda-router.svg?branch=master)](https://travis-ci.com/spring-media/aws-lambda-router)
 
 [![codecov](https://codecov.io/gh/spring-media/aws-lambda-router/branch/master/graph/badge.svg)](https://codecov.io/gh/spring-media/aws-lambda-router) [![npm version](https://badge.fury.io/js/aws-lambda-router.svg)](https://badge.fury.io/js/aws-lambda-router) [![dependencies](https://david-dm.org/spring-media/aws-lambda-router.svg)](https://www.npmjs.com/package/aws-lambda-router)
 
@@ -444,7 +444,7 @@ See here: https://yarnpkg.com/en/docs/cli/link
 
 It's simple. 
 
-Increase version in **package.json** (using [semantic version syntax](https://semver.org/)). After than create an new tag in github (with description, can be the same as of the release history below) with the same version (like v0.98.9). Our build pipeline at [Travis CI](https://travis-ci.org/spring-media/aws-lambda-router) will be started and release an new version at [NPM Repository](https://www.npmjs.com/package/aws-lambda-router).
+Increase version in **package.json** (using [semantic version syntax](https://semver.org/)). After than create an new tag in github (with description, can be the same as of the release history below) with the same version (like v0.98.9). Our build pipeline at [Travis CI](https://travis-ci.com/spring-media/aws-lambda-router) will be started and release an new version at [NPM Repository](https://www.npmjs.com/package/aws-lambda-router).
 
 Thats all.
 
