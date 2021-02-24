@@ -1,11 +1,16 @@
+### 0.10.0 (open)
+  * adding generic and proxyIntegration errorHandler (#60) (thanks to [@swaner](https://github.com/swaner))
+  * fix: logging statements (#59) (thanks to [@snorberhuis](https://github.com/snorberhuis))
+  * build: updates build nodeJS version to 10
+
 ### 0.9.1 (September 11, 2020)
-  * proxyIntegration: Allow defaultHeaders to be added to the OPTIONS request (#53) (thanks again to [@TerryMooreII  ](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
+  * proxyIntegration: Allow defaultHeaders to be added to the OPTIONS request (#53) (thanks again to [@TerryMooreII](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
 
 ### 0.9.0 (September 01, 2020)
-  * proxyIntegration: Adds customizable CORS configurations (#52) (thanks to [@TerryMooreII  ](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
+  * proxyIntegration: Adds customizable CORS configurations (#52) (thanks to [@TerryMooreII](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
 
 ### 0.8.4 (August 01, 2020)
-   * proxyIntegration: expose route path (#49) (thanks to [@evgenykireev  ](https://github.com/evgenykireev))
+   * proxyIntegration: expose route path (#49) (thanks to [@evgenykireev](https://github.com/evgenykireev))
 
 ### 0.8.3 (May 07, 2020)
    * added records to the SQS (#43) and SNS (#44) action for further processing
