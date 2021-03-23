@@ -1,4 +1,4 @@
-### 0.10.0 (open)
+### 0.10.0 (March 23, 2021)
   * adding generic and proxyIntegration errorHandler (#60) (thanks to [@swaner](https://github.com/swaner))
   * fix: logging statements (#59) (thanks to [@snorberhuis](https://github.com/snorberhuis))
   * build: updates build nodeJS version to 10
