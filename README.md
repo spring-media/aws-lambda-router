@@ -220,7 +220,7 @@ export const handler = router.handler({
 
 </details>
 
-## Error mapping
+## Error mapping / handling
 
 ```js
 import * as router from 'aws-lambda-router'
@@ -255,7 +255,43 @@ The action can throw an object like
     "throw {reason: 'NotFound', message: 'object id not found'}"
 
 and the http response then contains the configured value as response code and the message as the body.
-        
+
+###  Genereric error handler for proxyIntegration
+
+Also there is implemented an generic error handler. The idea is to have a place for handling error logging and also return custom error messages.
+
+<details>
+  <summary>Generic error handling example</summary>
+
+```js
+onError: (error, event, context) => {
+    // Global exceptions goes here, works for sns, s3 and sqs should end up here aswell
+    console.log(error)
+},
+proxyIntegration: {
+    onError: (error, request, context) => {
+        // proxy integration exceptions goes here
+        console.log('Error', error, request, context)
+    },
+    routes: ...
+}
+
+// Also support returning a response:
+proxyIntegration: {
+    onError: async (error) => {
+        console.log('Error', error)
+        await someAsyncMethod();
+        return {
+           statusCode: 401,
+           body: Not allowed
+        }
+    },
+    routes: ...
+}
+```
+</details>
+
+For more examples please look into the [tests](test/proxyIntegration.test.ts) of proxyIntegration.
 
 ## SNS to Lambda Integrations
 
