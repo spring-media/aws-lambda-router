@@ -1,22 +1,24 @@
 import { APIGatewayEventRequestContext, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
-import { ProcessMethod } from './EventProcessor'
+import { HttpMethod, ProcessMethod } from './EventProcessor'
 import { addCorsHeaders, CorsOptions } from './cors';
 
 type ProxyIntegrationParams = {
   paths?: { [paramId: string]: string }
   routePath?: string
 }
+
 type ProxyIntegrationBody<T = unknown> = {
   body: T
 }
+
 type ErrorHandler = (error?: Error, request?: APIGatewayProxyEvent, context?: APIGatewayEventRequestContext) => Promise<APIGatewayProxyResult | void> | APIGatewayProxyResult | void
 export type ProxyIntegrationEvent<T = unknown> = Omit<APIGatewayProxyEvent, 'body'> & ProxyIntegrationParams & ProxyIntegrationBody<T>
 export type ProxyIntegrationResult = Omit<APIGatewayProxyResult, 'statusCode'> & { statusCode?: APIGatewayProxyResult['statusCode'] }
 
 export interface ProxyIntegrationRoute {
   path: string
-  method: string
+  method: HttpMethod
   action: (
     request: ProxyIntegrationEvent<unknown>,
     context: APIGatewayEventRequestContext
@@ -94,7 +96,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
     }
 
     const headers: APIGatewayProxyResult['headers'] = proxyIntegrationConfig.cors ? addCorsHeaders(proxyIntegrationConfig.cors, event) : {};
-    
+
     if (event.httpMethod === 'OPTIONS') {
       Object.assign(headers, proxyIntegrationConfig.defaultHeaders)
       return Promise.resolve({
@@ -105,7 +107,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
     }
 
     Object.assign(headers, { 'Content-Type': 'application/json' }, proxyIntegrationConfig.defaultHeaders)
-    
+
     // assure necessary values have sane defaults:
     const errorMapping = proxyIntegrationConfig.errorMapping || {}
     errorMapping['NO_MATCHING_ACTION'] = 404
@@ -121,7 +123,8 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
     }
 
     try {
-      const actionConfig = findMatchingActionConfig(event.httpMethod, event.path, proxyIntegrationConfig) || {
+      const httpMethod = event.httpMethod as HttpMethod;
+      const actionConfig = findMatchingActionConfig(httpMethod, event.path, proxyIntegrationConfig) || {
         action: NO_MATCHING_ACTION,
         routePath: undefined,
         paths: undefined
@@ -163,7 +166,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
           if (result != undefined) {
             return result
           }
-          
+
           return convertError(error, errorMapping, headers)
         })
       }
@@ -220,7 +223,7 @@ const convertError = (error: ProxyIntegrationError | Error, errorMapping?: Proxy
   }
 }
 
-const findMatchingActionConfig = (httpMethod: string, httpPath: string, routeConfig: ProxyIntegrationConfig):
+const findMatchingActionConfig = (httpMethod: HttpMethod, httpPath: string, routeConfig: ProxyIntegrationConfig):
   ProxyIntegrationRoute & ProxyIntegrationParams | null => {
 
   const paths: ProxyIntegrationParams['paths'] = {}
