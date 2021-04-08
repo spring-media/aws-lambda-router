@@ -1,3 +1,6 @@
+### not released yet ()
+  * improvement: add HttpMethod to "ProxyIntegrationRoute" (#64) (thanks to [@JHPG](https://github.com/JHPG))
+
 ### 0.10.0 (March 23, 2021)
   * adding generic and proxyIntegration errorHandler (#60) (thanks to [@swaner](https://github.com/swaner))
   * fix: logging statements (#59) (thanks to [@snorberhuis](https://github.com/snorberhuis))
