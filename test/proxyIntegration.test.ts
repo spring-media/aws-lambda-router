@@ -2,6 +2,7 @@
 import { ProxyIntegrationConfig, process as proxyIntegration } from '../lib/proxyIntegration'
 
 import { APIGatewayProxyEvent } from 'aws-lambda'
+import { HttpMethod } from '../lib/EventProcessor'
 
 function forEach(arrayOfArrays: any) {
   return {
@@ -266,7 +267,7 @@ describe('proxyIntegration.routeHandler', () => {
     ['GET', '/abc/def'],
     ['POST', '/abc'],
     ['PUT', '/abc/def/ghi']
-  ]).it('should call action for on method/staticPath', async (method: string, path: string) => {
+  ]).it('should call action for on method/staticPath', async (method: HttpMethod, path: string) => {
     const routeConfig: ProxyIntegrationConfig = {
       routes: [
         { method, path, action: () => ({ foo: 'bar' }) as any }
@@ -353,7 +354,7 @@ describe('proxyIntegration.routeHandler', () => {
   })
 
   it('should return error headers', async () => {
-    const routeConfig = {
+    const routeConfig: ProxyIntegrationConfig = {
       routes: [
         {
           method: 'GET',
@@ -374,7 +375,7 @@ describe('proxyIntegration.routeHandler', () => {
   })
 
   it('should return error including CORS header', async () => {
-    const routeConfig = {
+    const routeConfig: ProxyIntegrationConfig = {
       cors: true,
       routes: [
         {
@@ -399,7 +400,7 @@ describe('proxyIntegration.routeHandler', () => {
   })
   it('should modify incorrect error', async () => {
     const incorrectError = { body: { reason: 'oops' } }
-    const routeConfig = {
+    const routeConfig: ProxyIntegrationConfig = {
       routes: [
         {
           method: 'GET',
@@ -423,7 +424,7 @@ describe('proxyIntegration.routeHandler', () => {
 
   it('should pass through error statuscode', async () => {
     const statusCodeError = { statusCode: 666, message: { reason: 'oops' } }
-    const routeConfig = {
+    const routeConfig: ProxyIntegrationConfig = {
       routes: [
         {
           method: 'GET',
@@ -547,7 +548,7 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
       body: JSON.stringify({ foo: 'bar' })
     }
 
-    const routeConfig = {
+    const routeConfig: ProxyIntegrationConfig = {
       routes: [
         { method: 'GET', path: '/', action: () => Promise.resolve(customBody) }
       ]
@@ -578,7 +579,7 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
     [1234, '1234'],
     [undefined, '{}']
   ]).it('should return async result', async (returnValue, expectedBody) => {
-    const routeConfig = {
+    const routeConfig: ProxyIntegrationConfig = {
       routes: [
         { method: 'GET', path: '/', action: () => Promise.resolve(returnValue) }
       ]
@@ -595,9 +596,9 @@ describe('proxyIntegration.routeHandler.returnvalues', () => {
   })
 
   it('should return async error', async () => {
-    const routeConfig = {
+    const routeConfig: ProxyIntegrationConfig = {
       routes: [
-        { method: 'GET', path: '/', action: () => Promise.reject({ reason: 'myError', message: 'doof' }) }
+        { method: 'GET', path: '/', action: () => Promise.reject({ reason: 'myError', message: 'doof' }) as any }
       ],
       errorMapping: { 'myError': 599 }
     }
