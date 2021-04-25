@@ -63,6 +63,32 @@ export const handler = (routeConfig: RouteConfig) => {
   }
 }
 
+import * as proxyIntegration from './lib/proxyIntegration'
+import * as sns from './lib/sns'
+import * as sqs from './lib/sqs'
+import * as s3 from './lib/s3'
+
+type ProcessorKey = Exclude<keyof RouteConfig, 'debug' | 'onError'>
+
+const processors: Record<ProcessorKey, EventProcessor> = {
+  proxyIntegration,
+  sns,
+  sqs,
+  s3,
+}
+
+const isProcessorKey = (key: string): key is ProcessorKey => {
+  return Object.prototype.hasOwnProperty.call(processors, key)
+}
+
+const getProcessor = (key: string): EventProcessor => {
+  if (!isProcessorKey(key)) {
+    return require(`./lib/${key}`);
+  }
+
+  return processors[key]
+}
+
 const extractEventProcessorMapping = (routeConfig: RouteConfig) => {
   const processorMap = new Map<string, EventProcessor>()
   for (const key of Object.keys(routeConfig)) {
@@ -70,7 +96,7 @@ const extractEventProcessorMapping = (routeConfig: RouteConfig) => {
       continue
     }
     try {
-      processorMap.set(key, require(`./lib/${key}`))
+      processorMap.set(key, getProcessor(key))
     } catch (error) {
       throw new Error(`The event processor '${key}', that is mentioned in the routerConfig, cannot be instantiated (${error.toString()})`)
     }
