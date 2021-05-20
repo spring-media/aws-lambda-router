@@ -1,5 +1,9 @@
 ### not released yet ()
   * improvement: add HttpMethod to "ProxyIntegrationRoute" (#64) (thanks to [@JHPG](https://github.com/JHPG))
+  * fix: send cors headers back after onError result (#69) (thanks to [@Gerjunior](https://github.com/Gerjunior))
+  * dependency (dependabot): Bump hosted-git-info from 2.8.5 to 2.8.9 (#68)
+  * dependency (dependabot): Bump lodash from 4.17.19 to 4.17.21 (#67)
+
 
 ### 0.10.0 (March 23, 2021)
   * adding generic and proxyIntegration errorHandler (#60) (thanks to [@swaner](https://github.com/swaner))
