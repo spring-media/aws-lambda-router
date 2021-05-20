@@ -151,7 +151,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
         if (proxyIntegrationConfig.onError) {
           const result = await proxyIntegrationConfig.onError(error, event, context)
           if (result != undefined) {
-            return result
+            return { headers, ...result }
           }
         }
 
@@ -164,7 +164,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
           const promise = proxyIntegrationConfig.onError(error, event, context)
           Promise.resolve(promise).then(result => {
           if (result != undefined) {
-            return result
+            return { headers, ...result }
           }
 
           return convertError(error, errorMapping, headers)

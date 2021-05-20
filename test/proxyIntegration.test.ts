@@ -651,7 +651,7 @@ describe('proxyIntegration.onError', () => {
       onError: (error) => {
         return {
           body: '{"message":"doof","error":"myError"}',
-          statusCode: 599
+          statusCode: 599,
         }
       }
     }
@@ -664,6 +664,9 @@ describe('proxyIntegration.onError', () => {
     expect(result).toEqual({
       body: '{"message":"doof","error":"myError"}',
       statusCode: 599,
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
   })
   it('should allow Promised void', async () => {
@@ -687,5 +690,43 @@ describe('proxyIntegration.onError', () => {
       fail('result is expected to have a value')
     }
     expect(result.statusCode).toEqual(500)
+  })
+
+  it('should return cors headers', async () => {
+    const errorBody = JSON.stringify({ error: 'Error', message: 'Test Error' })
+
+    const proxyConfig : ProxyIntegrationConfig = {
+      cors: true,
+      routes: [{
+        method: 'GET',
+        path: '/',
+        action: () => {
+          throw Error('Test error')
+        }
+      }],
+      onError: (error) => {
+        return {
+          body: errorBody,
+          statusCode: 599,
+        }
+      }
+    }
+
+    const result = await proxyIntegration(proxyConfig, {
+      body: '{}',
+      path: '/',
+      httpMethod: 'GET'
+    } as APIGatewayProxyEvent, context)
+
+    expect(result).toEqual({
+      body: errorBody,
+      statusCode: 599,
+      headers: {
+        'Content-Type': 'application/json',
+        "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,HEAD,PATCH",
+        "Access-Control-Allow-Origin": "*",
+      }
+    })
   })
 })
