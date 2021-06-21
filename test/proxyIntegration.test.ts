@@ -228,6 +228,25 @@ describe('proxyIntegration.routeHandler', () => {
       paths: {}
     }, context)
   })
+  it('should not remove basepath from root path if coming over custom domain name and removeBasePath is false', () => {
+    const actionSpy = jasmine.createSpy('action')
+    const event = {
+      httpMethod: 'GET', path: '/shortcut-itemsdev',
+      headers: { Host: 'api.ep.welt.de' },
+      requestContext: { apiId: 'blabla' }
+    }
+    proxyIntegration({
+      removeBasePath: false,
+      routes: [{
+        method: 'GET',
+        path: '/shortcut-itemsdev',
+        action: actionSpy
+      }]
+    }, event as any, context)
+    expect(actionSpy).toHaveBeenCalledWith({
+      httpMethod: 'GET', headers: jasmine.anything(), requestContext: jasmine.anything(), path: '/shortcut-itemsdev', routePath: '/shortcut-itemsdev', paths: {}
+    }, context)
+  })
   it('should not change path if not coming over custom domain name', async () => {
     await assertPathIsUnchanged('blabla.execute-api.eu-central-1.amazonaws.com')
   })

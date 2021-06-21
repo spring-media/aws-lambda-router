@@ -120,7 +120,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
         console.log(`proxy path with event path: ${event.path}`)
       }
     } else {
-      event.path = normalizeRequestPath(event)
+      event.path = normalizeRequestPath(event, proxyIntegrationConfig.removeBasePath)
     }
 
     try {
@@ -162,8 +162,8 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
       console.log('Error while evaluating matching action handler', error)
 
       if (proxyIntegrationConfig.onError) {
-          const promise = proxyIntegrationConfig.onError(error, event, context)
-          Promise.resolve(promise).then(result => {
+        const promise = proxyIntegrationConfig.onError(error, event, context)
+        Promise.resolve(promise).then(result => {
           if (result != undefined) {
             return { headers, ...result }
           }
@@ -176,15 +176,15 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
     }
   }
 
-const normalizeRequestPath = (event: APIGatewayProxyEvent): string => {
+const normalizeRequestPath = (event: APIGatewayProxyEvent, removeBasePath: boolean = true): string => {
   if (isLocalExecution(event)) {
     return event.path
   }
-
   // ugly hack: if host is from API-Gateway 'Custom Domain Name Mapping', then event.path has the value '/basepath/resource-path/'
   // if host is from amazonaws.com, then event.path is just '/resource-path':
   const apiId = event.requestContext ? event.requestContext.apiId : null // the apiId that is the first part of the amazonaws.com-host
-  if ((apiId && event.headers && event.headers.Host && event.headers.Host.substring(0, apiId.length) !== apiId) && (proxyIntegrationConfig.removeBasePath === undefined || proxyIntegrationConfig.removeBasePath)) {
+  if ((apiId && event.headers && event.headers.Host && event.headers.Host.substring(0, apiId.length) !== apiId)
+    && removeBasePath) {
     // remove first path element:
     const groups = /\/[^\/]+(.*)/.exec(event.path) || [null, null]
     return groups[1] || '/'
