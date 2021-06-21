@@ -40,7 +40,8 @@ export type ProxyIntegrationError = {
 export interface ProxyIntegrationConfig {
   onError?: ErrorHandler
   cors?: CorsOptions | boolean
-  routes: ProxyIntegrationRoute[]
+  routes: ProxyIntegrationRoute[],
+  removeBasePath?: boolean,
   debug?: boolean
   errorMapping?: ProxyIntegrationErrorMapping
   defaultHeaders?: APIGatewayProxyResult['headers']
@@ -183,7 +184,7 @@ const normalizeRequestPath = (event: APIGatewayProxyEvent): string => {
   // ugly hack: if host is from API-Gateway 'Custom Domain Name Mapping', then event.path has the value '/basepath/resource-path/'
   // if host is from amazonaws.com, then event.path is just '/resource-path':
   const apiId = event.requestContext ? event.requestContext.apiId : null // the apiId that is the first part of the amazonaws.com-host
-  if ((apiId && event.headers && event.headers.Host && event.headers.Host.substring(0, apiId.length) !== apiId)) {
+  if ((apiId && event.headers && event.headers.Host && event.headers.Host.substring(0, apiId.length) !== apiId) && (proxyIntegrationConfig.removeBasePath === undefined || proxyIntegrationConfig.removeBasePath)) {
     // remove first path element:
     const groups = /\/[^\/]+(.*)/.exec(event.path) || [null, null]
     return groups[1] || '/'
