@@ -6,7 +6,7 @@
   * fix: send cors headers back after onError result ([#69](https://github.com/spring-media/aws-lambda-router/pull/69)) (thanks to [@Gerjunior](https://github.com/Gerjunior))
   * dependency (dependabot): Bump hosted-git-info from 2.8.5 to 2.8.9 ([#68](https://github.com/spring-media/aws-lambda-router/pull/68))
   * dependency (dependabot): Bump lodash from 4.17.19 to 4.17.21 ([#67](https://github.com/spring-media/aws-lambda-router/pull/67))
-
+  * dependency (dependabot): Bump minimist from 1.2.0 to 1.2.5 ([#73](https://github.com/spring-media/aws-lambda-router/pull/73))
 
 ### 0.10.0 (March 23, 2021)
   * adding generic and proxyIntegration errorHandler ([#60](https://github.com/spring-media/aws-lambda-router/pull/60)) (thanks to [@swaner](https://github.com/swaner))
