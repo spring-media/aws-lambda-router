@@ -1,26 +1,29 @@
 ### not released yet ()
-  * improvement: add HttpMethod to "ProxyIntegrationRoute" (#64) (thanks to [@JHPG](https://github.com/JHPG))
-  * fix: send cors headers back after onError result (#69) (thanks to [@Gerjunior](https://github.com/Gerjunior))
-  * dependency (dependabot): Bump hosted-git-info from 2.8.5 to 2.8.9 (#68)
-  * dependency (dependabot): Bump lodash from 4.17.19 to 4.17.21 (#67)
+
+### 0.11.0 (July 02, 2021)
+  * improvement: add HttpMethod to "ProxyIntegrationRoute" ([#64](https://github.com/spring-media/aws-lambda-router/pull/64)) (thanks to [@JHPG](https://github.com/JHPG))
+  * improvement: flag to disable Base Path Removal ([#72](https://github.com/spring-media/aws-lambda-router/pull/72)) (thanks to [@EthanDavis](https://github.com/EthanDavis))
+  * fix: send cors headers back after onError result ([#69](https://github.com/spring-media/aws-lambda-router/pull/69)) (thanks to [@Gerjunior](https://github.com/Gerjunior))
+  * dependency (dependabot): Bump hosted-git-info from 2.8.5 to 2.8.9 ([#68](https://github.com/spring-media/aws-lambda-router/pull/68))
+  * dependency (dependabot): Bump lodash from 4.17.19 to 4.17.21 ([#67](https://github.com/spring-media/aws-lambda-router/pull/67))
 
 
 ### 0.10.0 (March 23, 2021)
-  * adding generic and proxyIntegration errorHandler (#60) (thanks to [@swaner](https://github.com/swaner))
-  * fix: logging statements (#59) (thanks to [@snorberhuis](https://github.com/snorberhuis))
+  * adding generic and proxyIntegration errorHandler ([#60](https://github.com/spring-media/aws-lambda-router/pull/60)) (thanks to [@swaner](https://github.com/swaner))
+  * fix: logging statements ([#59](https://github.com/spring-media/aws-lambda-router/pull/59)) (thanks to [@snorberhuis](https://github.com/snorberhuis))
   * build: updates build nodeJS version to 10
 
 ### 0.9.1 (September 11, 2020)
-  * proxyIntegration: Allow defaultHeaders to be added to the OPTIONS request (#53) (thanks again to [@TerryMooreII](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
+  * proxyIntegration: Allow defaultHeaders to be added to the OPTIONS request ([#53](https://github.com/spring-media/aws-lambda-router/pull/53)) (thanks again to [@TerryMooreII](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
 
 ### 0.9.0 (September 01, 2020)
-  * proxyIntegration: Adds customizable CORS configurations (#52) (thanks to [@TerryMooreII](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
+  * proxyIntegration: Adds customizable CORS configurations ([#52](https://github.com/spring-media/aws-lambda-router/pull/52)) (thanks to [@TerryMooreII](https://github.com/TerryMooreII) and [LiveOakLabs](https://github.com/LiveOakLabs))
 
 ### 0.8.4 (August 01, 2020)
-   * proxyIntegration: expose route path (#49) (thanks to [@evgenykireev](https://github.com/evgenykireev))
+   * proxyIntegration: expose route path ([#49](https://github.com/spring-media/aws-lambda-router/pull/49)) (thanks to [@evgenykireev](https://github.com/evgenykireev))
 
 ### 0.8.3 (May 07, 2020)
-   * added records to the SQS (#43) and SNS (#44) action for further processing
+   * added records to the SQS ([#43](https://github.com/spring-media/aws-lambda-router/pull/43)) and SNS ([#44](https://github.com/spring-media/aws-lambda-router/pull/44)) action for further processing
 
 ### 0.8.2 (January 28, 2020)
    * added support for Open API parameter definitions e.g.: /section/{id}
