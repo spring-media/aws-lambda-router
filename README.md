@@ -44,7 +44,7 @@ import * as router from 'aws-lambda-router'
 
 export const handler = router.handler({
     proxyIntegration: {
-        // by default does not map AWS Apigateway Custom Domain base path mapping.
+        // assumes the first path part is `stage` and removes it.
         removeBasePath: true
         routes: [
             {
@@ -142,7 +142,7 @@ export const handler = router.handler({
 }
 ```
 
-## When a API Mapping is configured for a custom domain
+## When an API Mapping is configured for a custom domain
 If your API-gateway custom domain has a mapping for `stage` you will need to set `removeBasePath` to `false` in order to allow the route to be properly matched on. 
 
 ```js
