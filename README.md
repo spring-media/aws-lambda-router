@@ -44,6 +44,8 @@ import * as router from 'aws-lambda-router'
 
 export const handler = router.handler({
     proxyIntegration: {
+        // assumes the first path part is `stage` and removes it.
+        removeBasePath: true
         routes: [
             {
                 // request-path-pattern with a path variable:
@@ -116,6 +118,7 @@ import { ProxyIntegrationEvent } from 'aws-lambda-router/lib/proxyIntegration'
 
 export const handler = router.handler({
     proxyIntegration: {
+        removeBasePath: true,
         routes: [
             {
                 path: '/saveExample',
@@ -138,6 +141,36 @@ export const handler = router.handler({
     }
 }
 ```
+
+## When an API Mapping is configured for a custom domain
+If your API-gateway custom domain has a mapping for `stage` you will need to set `removeBasePath` to `false` in order to allow the route to be properly matched on. 
+
+```js
+const router = require('aws-lambda-router');
+
+exports.handler = router.handler({
+    proxyIntegration: {
+        removeBasePath: false,
+        routes: [
+            {
+                path: '/api/article/list',
+                method: 'GET',
+                action: (request, context) => {
+                    return "You called me with: " + request.path;
+                }
+            },
+            {
+                path: '/api/json/v1/schema',
+                method: 'GET',
+                action: (request, context) => {
+                    return "You called me with: " + request.path;
+                }
+            }
+        ]
+    }
+})
+```
+
 
 ## Enable CORS 
 
