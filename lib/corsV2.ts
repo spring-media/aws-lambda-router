@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent } from 'aws-lambda'
+import { APIGatewayProxyEventV2 } from 'aws-lambda'
 
 type HeaderKeyValue = {
   key: string
@@ -57,7 +57,7 @@ const isOriginAllowed = (
 
 const configureOrigin = (
   options: CorsOptions,
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEventV2
 ): HeaderObject => {
   const { origin } = options
   const headers: HeaderObject = []
@@ -121,7 +121,7 @@ const configureMethods = (options: CorsOptions): HeaderObject => {
 
 const configureAllowedHeaders = (
   options: CorsOptions,
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEventV2
 ): HeaderObject => {
   let { allowedHeaders } = options
   const headers = []
@@ -213,7 +213,7 @@ const generateHeaders = (headersArray: Array<HeaderObject>) => {
 
 export const addCorsHeaders = (
   options: CorsOptions | boolean,
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEventV2
 ) => {
   if (options === false) {
     return {}
