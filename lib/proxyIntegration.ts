@@ -9,6 +9,7 @@ type ProxyIntegrationParams = {
 }
 
 type ProxyIntegrationBody<T = unknown> = {
+  rawBody?: T
   body: T
 }
 
@@ -137,6 +138,7 @@ export const process: ProcessMethod<ProxyIntegrationConfig, APIGatewayProxyEvent
       proxyEvent.routePath = actionConfig.routePath
       if (event.body) {
         try {
+          proxyEvent.rawBody = event.body
           proxyEvent.body = JSON.parse(event.body)
         } catch (parseError) {
           console.log(`Could not parse body as json: ${event.body}`, parseError)
